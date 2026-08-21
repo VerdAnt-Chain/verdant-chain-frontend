@@ -2,11 +2,11 @@
 
 import { useEffect } from "react"
 import { syncWallet } from "@/lib/wallet/wallet"
-import { loadAuthToken } from "@/lib/api/client"
+import { loadAuthSession } from "@/lib/wallet/auth"
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    loadAuthToken()
+    loadAuthSession()
     syncWallet()
   }, [])
   return <>{children}</>

@@ -83,16 +83,16 @@ coordination root's `docs/api/`). Wallet actions use `src/lib/wallet` and
 
 ## Route map
 
-| Route | Purpose | Data source |
-|-------|---------|-------------|
-| `/` | Home: hero + five pillar cards linking to surfaces | static |
-| `/discover` | **AgriScout** discovery: search form, results grid, pagination | `GET /api/v1/farmers` (AD-010) |
-| `/farmers/[address]` | **AgriScout** farmer profile: metadata + verification markers | `GET /api/v1/farmers/:address` |
-| `/verify` | **AgroProof** feature landing (verification along the chain) | static demo data |
-| `/equipment` | **AgriLease** feature landing (escrowed equipment bookings) | static demo data |
-| `/financing` | **FarmFund** feature landing (milestone financing) | static demo data |
-| `/livestock` | **LivestockPass** feature landing (livestock identity/history) | static demo data |
-| `/design-system` | Design-system showcase (tokens + primitives) | static |
+| Route                | Purpose                                                        | Data source                    |
+| -------------------- | -------------------------------------------------------------- | ------------------------------ |
+| `/`                  | Home: hero + five pillar cards linking to surfaces             | static                         |
+| `/discover`          | **AgriScout** discovery: search form, results grid, pagination | `GET /api/v1/farmers` (AD-010) |
+| `/farmers/[address]` | **AgriScout** farmer profile: metadata + verification markers  | `GET /api/v1/farmers/:address` |
+| `/verify`            | **AgroProof** feature landing (verification along the chain)   | static demo data               |
+| `/equipment`         | **AgriLease** feature landing (escrowed equipment bookings)    | static demo data               |
+| `/financing`         | **FarmFund** feature landing (milestone financing)             | static demo data               |
+| `/livestock`         | **LivestockPass** feature landing (livestock identity/history) | static demo data               |
+| `/design-system`     | Design-system showcase (tokens + primitives)                   | static                         |
 
 ## Design system & styling
 
@@ -153,11 +153,11 @@ Next.js public variables must be prefixed with `NEXT_PUBLIC_` and are exposed
 to browser JavaScript. Secrets must never be stored in `NEXT_PUBLIC_`
 variables. See `.env.example`:
 
-| Variable | Purpose |
-|----------|---------|
-| `NEXT_PUBLIC_SITE_URL` | Canonical site URL for `metadataBase`, Open Graph/Twitter previews, `robots.txt`, `sitemap.xml` (defaults to `http://localhost:3000`) |
-| `NEXT_PUBLIC_WALLET_RPC_URL` | Reserved — public JSON-RPC endpoint |
-| `NEXT_PUBLIC_WALLET_CONNECT_RELAY` | Reserved — WalletConnect relay URL |
+| Variable                           | Purpose                                                                                                                               |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL`             | Canonical site URL for `metadataBase`, Open Graph/Twitter previews, `robots.txt`, `sitemap.xml` (defaults to `http://localhost:3000`) |
+| `NEXT_PUBLIC_WALLET_RPC_URL`       | Reserved — public JSON-RPC endpoint                                                                                                   |
+| `NEXT_PUBLIC_WALLET_CONNECT_RELAY` | Reserved — WalletConnect relay URL                                                                                                    |
 
 ## Tests
 

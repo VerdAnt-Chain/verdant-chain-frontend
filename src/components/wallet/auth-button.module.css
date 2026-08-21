@@ -1,0 +1,15 @@
+.signedIn {
+  gap: var(--va-space-2);
+}
+
+.address {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--va-success);
+}

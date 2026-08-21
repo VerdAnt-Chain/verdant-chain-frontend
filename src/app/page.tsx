@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Button, Card, Heading, StatusPill, Text, ThemeToggle, WalletButton } from "@/components/ui"
+import { Button, Card, Heading, StatusPill, Text } from "@/components/ui"
 import styles from "./home.module.css"
 
 const pillars = [
@@ -33,22 +33,6 @@ const pillars = [
 export default function Home() {
   return (
     <main className={styles.main}>
-      <div className={styles.topbar}>
-        <span className={styles.wordmark}>
-          <span className={styles.logo}>V</span>
-          <strong>VerdAnt</strong>
-        </span>
-        <nav className={styles.nav}>
-          <Link href="/design-system">Design system</Link>
-          <Link href="/discover">AgriScout</Link>
-          <Link href="/verify">Verification</Link>
-          <Link href="/equipment">Equipment</Link>
-          <Link href="/financing">Financing</Link>
-          <Link href="/livestock">Livestock</Link>
-          <WalletButton />
-        </nav>
-      </div>
-
       <section className={styles.hero}>
         <StatusPill tone="success" label="Built on Stellar" />
         <Heading as="h1" size={1}>

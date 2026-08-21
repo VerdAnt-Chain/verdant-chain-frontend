@@ -17,7 +17,14 @@ const record = {
 
 const searchResponse = {
   items: [
-    { address: KEY, id: FARMER_ID, name: "Ada Farm Cooperative", region: "Niger", district: "Zinder", verificationCount: 3 },
+    {
+      address: KEY,
+      id: FARMER_ID,
+      name: "Ada Farm Cooperative",
+      region: "Niger",
+      district: "Zinder",
+      verificationCount: 3,
+    },
   ],
   pagination: { page: 1, pageSize: 20, total: 42, totalPages: 3 },
 }
@@ -42,11 +49,17 @@ describe("getFarmer", () => {
   it("returns the farmer record for an address", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(record)))
     await expect(getFarmer(KEY)).resolves.toEqual(record)
-    expect(fetch).toHaveBeenCalledWith(`/api/v1/farmers/${encodeURIComponent(KEY)}`, expect.anything())
+    expect(fetch).toHaveBeenCalledWith(
+      `/api/v1/farmers/${encodeURIComponent(KEY)}`,
+      expect.anything()
+    )
   })
 
   it("throws a typed 404 ApiError for unknown farmers", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ error: "unknown farmer" }, 404)))
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(jsonResponse({ error: "unknown farmer" }, 404))
+    )
     const error = await getFarmer(KEY).catch((e: unknown) => e)
     expect(error).toBeInstanceOf(ApiError)
     expect((error as ApiError).status).toBe(404)
@@ -64,8 +77,13 @@ describe("getFarmer", () => {
 describe("searchFarmers", () => {
   it("GETs /farmers with query params", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(searchResponse)))
-    await expect(searchFarmers({ q: "Ada", page: 2, pageSize: 10 })).resolves.toEqual(searchResponse)
-    expect(fetch).toHaveBeenCalledWith(`/api/v1/farmers?q=Ada&page=2&pageSize=10`, expect.anything())
+    await expect(searchFarmers({ q: "Ada", page: 2, pageSize: 10 })).resolves.toEqual(
+      searchResponse
+    )
+    expect(fetch).toHaveBeenCalledWith(
+      `/api/v1/farmers?q=Ada&page=2&pageSize=10`,
+      expect.anything()
+    )
   })
 
   it("omits empty params", async () => {

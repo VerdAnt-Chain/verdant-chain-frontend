@@ -1,0 +1,64 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--va-surface);
+  border-bottom: 1px solid var(--va-outline-variant);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--va-space-4);
+  max-width: var(--va-container-lg);
+  margin: 0 auto;
+  padding: var(--va-space-4) var(--va-space-6);
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--va-space-2);
+  font-size: var(--va-type-title-md);
+  color: var(--va-on-surface);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--va-shape-sm);
+  background: var(--va-primary);
+  color: var(--va-on-primary);
+  font-weight: 700;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--va-space-4);
+  flex-wrap: wrap;
+}
+
+.navLink {
+  color: var(--va-on-surface-variant);
+  text-decoration: none;
+  font-size: var(--va-type-label-md);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.navLink:hover {
+  color: var(--va-on-surface);
+}
+
+.actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--va-space-3);
+}

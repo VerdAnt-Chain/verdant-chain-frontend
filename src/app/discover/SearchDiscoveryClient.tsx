@@ -62,9 +62,7 @@ export function SearchDiscoveryClient() {
         setError(null)
       })
       .catch((e) => {
-        setError(
-          e instanceof Error ? e.message : "Could not reach the VerdAnt API"
-        )
+        setError(e instanceof Error ? e.message : "Could not reach the VerdAnt API")
         setResults([])
         setPagination({
           page: 1,
@@ -117,9 +115,7 @@ export function SearchDiscoveryClient() {
         </Card>
       )}
 
-      {loading && (
-        <Spinner size="md" label="Searching farmers…" className={styles.spinner} />
-      )}
+      {loading && <Spinner size="md" label="Searching farmers…" className={styles.spinner} />}
 
       {results.length > 0 && (
         <div className={styles.resultsGrid}>
@@ -163,9 +159,7 @@ export function SearchDiscoveryClient() {
         <Card elevation={1} className={styles.emptyState}>
           <StatusPill tone="info" label="No farmers found" />
           <Text>
-            No farmers matched{" "}
-            <code>{normalized}</code>{" "}
-            — try adjusting your search terms.
+            No farmers matched <code>{normalized}</code> — try adjusting your search terms.
           </Text>
         </Card>
       )}
@@ -173,44 +167,32 @@ export function SearchDiscoveryClient() {
       {!normalized && (
         <Card elevation={1} className={styles.emptyState}>
           <StatusPill tone="info" label="Enter a search term" />
-          <Text>
-            Enter a name, region, or district to search the farmer directory.
-          </Text>
+          <Text>Enter a name, region, or district to search the farmer directory.</Text>
         </Card>
       )}
 
-      <section
-        className={styles.future}
-        aria-labelledby="future-heading"
-      >
+      <section className={styles.future} aria-labelledby="future-heading">
         <Heading as="h3" id="future-heading">
           Directory & reputation
         </Heading>
         <Grid cols={3} gap={4} responsive className={styles.futureGrid}>
           <Card elevation={1} container>
             <Heading as="h4">Verified farmers</Heading>
-            <Text tone="muted">
-              Directory of farmers with on-chain verification markers.
-            </Text>
+            <Text tone="muted">Directory of farmers with on-chain verification markers.</Text>
           </Card>
           <Card elevation={1} container>
             <Heading as="h4">Reputation scores</Heading>
-            <Text tone="muted">
-              Aggregated scores from verification history and activity.
-            </Text>
+            <Text tone="muted">Aggregated scores from verification history and activity.</Text>
           </Card>
           <Card elevation={1} container>
             <Heading as="h4">Opportunity matching</Heading>
-            <Text tone="muted">
-              Connect farmers with buyers, equipment, and financing.
-            </Text>
+            <Text tone="muted">Connect farmers with buyers, equipment, and financing.</Text>
           </Card>
         </Grid>
         <Text tone="muted" className={styles.note}>
-          Search the directory above for registered farmers. Reputation and verified
-          history surfaces will be available in a future Phase 4b increment after the
-          verification contract documented in /docs/architecture/integration.md is
-          implemented and indexed.
+          Search the directory above for registered farmers. Reputation and verified history
+          surfaces will be available in a future Phase 4b increment after the verification contract
+          documented in /docs/architecture/integration.md is implemented and indexed.
         </Text>
       </section>
     </div>

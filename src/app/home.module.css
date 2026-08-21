@@ -7,39 +7,6 @@
   padding: var(--va-space-6) var(--va-space-6) var(--va-space-12);
 }
 
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: var(--va-space-4);
-}
-
-.wordmark {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--va-space-2);
-  font-size: var(--va-type-title-md);
-  color: var(--va-on-surface);
-}
-
-.logo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: var(--va-shape-sm);
-  background: var(--va-primary);
-  color: var(--va-on-primary);
-  font-weight: 700;
-}
-
-.nav {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--va-space-4);
-}
-
 .hero {
   display: flex;
   flex-direction: column;

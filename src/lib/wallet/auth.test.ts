@@ -124,5 +124,69 @@ describe("signInWithFreighter", () => {
     expect(result.roles).toEqual(["farmer"])
     expect(clientModule.setAuthToken).toHaveBeenCalledWith("token-123")
     expect(mocks.mockSignMessage).toHaveBeenCalledWith(expect.any(String), { address: KEY })
+
+    const snapshot = authModule.getAuthSnapshot()
+    expect(snapshot.state).toBe("signed_in")
+    if (snapshot.state === "signed_in") {
+      expect(snapshot.address).toBe(KEY)
+      expect(snapshot.roles).toEqual(["farmer"])
+      expect(snapshot.expiresAt).toBe("2026-08-25T00:00:00Z")
+    }
+  })
+})
+
+describe("auth session store", () => {
+  it("signOut clears the session and token", async () => {
+    mocks.mockIsConnected.mockResolvedValue({ isConnected: true })
+    mocks.mockGetAddress.mockResolvedValue({ address: KEY })
+    mocks.mockRequestAccess.mockResolvedValue({ address: KEY })
+    await walletModule.connectWallet()
+    mocks.mockSignMessage.mockResolvedValue({ signedMessage: "c2lnbmF0dXJl" })
+    mockFetchJson([
+      {
+        domain: challenge.domain,
+        nonce: challenge.nonce,
+        timestamp: challenge.timestamp,
+        address: KEY,
+      },
+      { token: "token-123", address: KEY, roles: ["farmer"], expires_at: "2026-08-25T00:00:00Z" },
+    ])
+    await authModule.signInWithFreighter()
+
+    authModule.signOut()
+
+    expect(authModule.getAuthSnapshot()).toEqual({ state: "signed_out" })
+    expect(clientModule.setAuthToken).toHaveBeenLastCalledWith(null)
+  })
+
+  it("loadAuthSession hydrates a signed-in session from a stored token", async () => {
+    vi.mocked(window.localStorage.getItem).mockReturnValue("token-123")
+    mockFetchJson([
+      { token: "token-123", address: KEY, roles: ["farmer"], expires_at: "2026-08-25T00:00:00Z" },
+    ])
+
+    await authModule.loadAuthSession()
+
+    const snapshot = authModule.getAuthSnapshot()
+    expect(snapshot.state).toBe("signed_in")
+    if (snapshot.state === "signed_in") {
+      expect(snapshot.address).toBe(KEY)
+      expect(snapshot.roles).toEqual(["farmer"])
+    }
+  })
+
+  it("loadAuthSession clears an expired token (401)", async () => {
+    vi.mocked(window.localStorage.getItem).mockReturnValue("stale-token")
+    mockFetchJson([], 401)
+
+    await authModule.loadAuthSession()
+
+    expect(authModule.getAuthSnapshot()).toEqual({ state: "signed_out" })
+    expect(clientModule.setAuthToken).toHaveBeenCalledWith(null)
+  })
+
+  it("loadAuthSession without a token stays signed out", async () => {
+    await authModule.loadAuthSession()
+    expect(authModule.getAuthSnapshot()).toEqual({ state: "signed_out" })
   })
 })

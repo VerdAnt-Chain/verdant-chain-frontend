@@ -18,11 +18,11 @@ import styles from "./farmer-profile.module.css"
 // Verification marker kinds vocabulary (Agent #2 canonical vocabulary)
 const markerKindToTone: Record<string, "yellow" | "green" | "blue" | "purple" | "teal" | "grey"> = {
   kyc: "yellow",
-  "registered_land": "green",
-  "coop_member": "blue",
-  "organic_certified": "purple",
-  "registered_animal": "teal",
-  "verified_proof": "grey",
+  registered_land: "green",
+  coop_member: "blue",
+  organic_certified: "purple",
+  registered_animal: "teal",
+  verified_proof: "grey",
 }
 
 function getMarkerTone(kind: string): "yellow" | "green" | "blue" | "purple" | "teal" | "grey" {

@@ -1,10 +1,5 @@
 import { api } from "./client"
-import type {
-  AuthChallenge,
-  AuthSession,
-  AuthVerifyPayload,
-  AuthVerifyResponse,
-} from "./types"
+import type { AuthChallenge, AuthSession, AuthVerifyPayload, AuthVerifyResponse } from "./types"
 
 export async function getAuthChallenge(address: string): Promise<AuthChallenge> {
   return api.post<AuthChallenge>("/auth/challenge", { address })
