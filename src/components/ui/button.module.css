@@ -12,10 +12,12 @@
   border-radius: var(--va-shape-full);
   text-align: center;
   text-decoration: none;
+  will-change: transform, box-shadow;
   transition:
     background-color var(--va-motion-150) var(--va-ease-standard),
-    box-shadow var(--va-motion-150) var(--va-ease-standard),
+    box-shadow var(--va-motion-200) var(--va-ease-spring-gentle),
     border-color var(--va-motion-150) var(--va-ease-standard),
+    transform var(--va-motion-spring-fast) var(--va-ease-spring-snappy),
     opacity var(--va-motion-100) var(--va-ease-standard);
 }
 
@@ -24,8 +26,20 @@
   opacity: 0.45;
 }
 
+/* M3 Expressive: subtle lift on hover with spring */
+.root:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
 .root:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: scale(0.96) translateY(0);
+  transition-duration: var(--va-motion-100);
+}
+
+.root:focus-visible {
+  outline: var(--va-focus-ring-width) solid var(--va-focus-ring-color);
+  outline-offset: var(--va-focus-ring-offset);
+  transform: translateY(-1px);
 }
 
 /* Full-width when the containing block is narrow (M3 adaptive controls) */
@@ -60,6 +74,7 @@
 .filled:hover:not(:disabled) {
   background: color-mix(in srgb, var(--va-primary) 88%, var(--va-on-primary));
   box-shadow: var(--va-elevation-2);
+  transform: translateY(-1px) scale(1.01);
 }
 
 .tonal {
@@ -73,6 +88,7 @@
     var(--va-secondary-container) 85%,
     var(--va-on-secondary-container)
   );
+  transform: translateY(-1px) scale(1.01);
 }
 
 .outlined {
@@ -83,6 +99,7 @@
 
 .outlined:hover:not(:disabled) {
   background: var(--va-primary-container);
+  transform: translateY(-1px);
 }
 
 .text {
@@ -93,4 +110,13 @@
 
 .text:hover:not(:disabled) {
   background: var(--va-primary-container);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root,
+  .root:hover:not(:disabled),
+  .root:active:not(:disabled) {
+    transform: none !important;
+    transition: background-color var(--va-motion-150) var(--va-ease-standard) !important;
+  }
 }

@@ -26,6 +26,36 @@
 
 .errorCard {
   border-color: var(--va-error);
+  animation: va-spring-enter-subtle var(--va-motion-300) var(--va-ease-spring-gentle) both;
+}
+
+.resultsGrid {
+  display: grid;
+  gap: var(--va-space-4);
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+}
+
+.resultCard {
+  animation: va-spring-enter var(--va-motion-spring-default) var(--va-ease-spring-standard) both;
+}
+
+.resultCard:nth-child(1) {
+  animation-delay: 0ms;
+}
+.resultCard:nth-child(2) {
+  animation-delay: calc(1 * var(--va-stagger-step));
+}
+.resultCard:nth-child(3) {
+  animation-delay: calc(2 * var(--va-stagger-step));
+}
+.resultCard:nth-child(4) {
+  animation-delay: calc(3 * var(--va-stagger-step));
+}
+.resultCard:nth-child(5) {
+  animation-delay: calc(4 * var(--va-stagger-step));
+}
+.resultCard:nth-child(6) {
+  animation-delay: calc(5 * var(--va-stagger-step));
 }
 
 .header {
@@ -67,4 +97,11 @@
 .note {
   margin-top: var(--va-space-4);
   font-size: var(--va-type-body-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .errorCard,
+  .resultCard {
+    animation: none !important;
+  }
 }

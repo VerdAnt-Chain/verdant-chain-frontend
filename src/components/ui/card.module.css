@@ -24,16 +24,23 @@
 
 .interactive {
   cursor: pointer;
+  will-change: transform, box-shadow, border-color;
   transition:
-    box-shadow var(--va-motion-200) var(--va-ease-emphasized),
-    transform var(--va-motion-200) var(--va-ease-emphasized),
+    box-shadow var(--va-motion-spring-default) var(--va-ease-spring-gentle),
+    transform var(--va-motion-spring-default) var(--va-ease-spring-standard),
     border-color var(--va-motion-200) var(--va-ease-standard);
 }
 
 .interactive:hover {
-  box-shadow: var(--va-elevation-2);
+  box-shadow: var(--va-elevation-3);
   border-color: var(--va-primary);
-  transform: translateY(-2px);
+  transform: translateY(-4px) scale(1.01);
+}
+
+.interactive:active {
+  transform: translateY(-1px) scale(0.99);
+  box-shadow: var(--va-elevation-1);
+  transition-duration: var(--va-motion-150);
 }
 
 .elevation0 {
@@ -58,4 +65,13 @@
 
 .elevation5 {
   box-shadow: var(--va-elevation-5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .interactive,
+  .interactive:hover,
+  .interactive:active {
+    transform: none !important;
+    transition: border-color var(--va-motion-150) var(--va-ease-standard) !important;
+  }
 }

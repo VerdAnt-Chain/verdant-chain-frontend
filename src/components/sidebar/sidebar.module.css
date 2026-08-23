@@ -8,9 +8,10 @@
   padding: var(--va-space-3) var(--va-space-2);
   gap: var(--va-space-3);
   transition:
-    width var(--va-motion-200) var(--va-ease-standard),
-    min-width var(--va-motion-200) var(--va-ease-standard);
+    width var(--va-motion-spring-default) var(--va-ease-spring-gentle),
+    min-width var(--va-motion-spring-default) var(--va-ease-spring-gentle);
   align-self: stretch;
+  will-change: width, min-width;
 }
 
 .collapsed {
@@ -31,6 +32,7 @@
   font-weight: 600;
   color: var(--va-on-surface-variant);
   letter-spacing: 0.02em;
+  animation: va-spring-enter-subtle var(--va-motion-300) var(--va-ease-spring-gentle) both;
 }
 
 .collapseBtn {
@@ -44,11 +46,20 @@
   background: var(--va-surface);
   color: var(--va-on-surface-variant);
   cursor: pointer;
+  transition:
+    background var(--va-motion-150) var(--va-ease-standard),
+    transform var(--va-motion-spring-fast) var(--va-ease-spring-snappy);
+  will-change: transform;
 }
 
 .collapseBtn:hover {
   background: var(--va-surface-container-high, var(--va-surface));
   color: var(--va-on-surface);
+  transform: scale(1.05);
+}
+
+.collapseBtn:active {
+  transform: scale(0.95);
 }
 
 .nav {
@@ -74,12 +85,22 @@
   cursor: pointer;
   text-align: left;
   font-family: inherit;
+  transition:
+    background var(--va-motion-150) var(--va-ease-standard),
+    transform var(--va-motion-spring-fast) var(--va-ease-spring-snappy),
+    border-color var(--va-motion-150) var(--va-ease-standard);
+  will-change: transform;
 }
 
 .item:hover {
   background: var(--va-surface-container-high, rgba(0, 0, 0, 0.04));
   color: var(--va-on-surface);
   text-decoration: none;
+  transform: translateX(2px) scale(1.01);
+}
+
+.item:active {
+  transform: scale(0.98);
 }
 
 .active {
@@ -91,6 +112,11 @@
 .icon {
   display: inline-flex;
   flex-shrink: 0;
+  transition: transform var(--va-motion-spring-fast) var(--va-ease-spring-snappy);
+}
+
+.item:hover .icon {
+  transform: scale(1.08);
 }
 
 .label {
@@ -116,7 +142,7 @@
 }
 
 .chevron {
-  transition: transform var(--va-motion-150) var(--va-ease-standard);
+  transition: transform var(--va-motion-spring-fast) var(--va-ease-spring-standard);
 }
 
 .chevronOpen {
@@ -131,6 +157,8 @@
   padding-left: calc(18px + var(--va-space-2) + var(--va-space-1));
   margin-left: var(--va-space-2);
   border-left: 1px solid var(--va-outline-variant);
+  overflow: hidden;
+  animation: va-spring-enter-subtle var(--va-motion-spring-fast) var(--va-ease-spring-gentle) both;
 }
 
 .subItem {
@@ -139,12 +167,16 @@
   font-size: var(--va-type-label-sm, 0.875rem);
   color: var(--va-on-surface-variant);
   text-decoration: none;
+  transition:
+    background var(--va-motion-150) var(--va-ease-standard),
+    transform var(--va-motion-spring-fast) var(--va-ease-spring-snappy);
 }
 
 .subItem:hover {
   background: var(--va-surface-container-high, rgba(0, 0, 0, 0.04));
   color: var(--va-on-surface);
   text-decoration: none;
+  transform: translateX(2px);
 }
 
 .collapsedSub {
@@ -162,8 +194,25 @@
   text-decoration: none;
   color: var(--va-on-surface-variant);
   line-height: 6px;
+  transition: transform var(--va-motion-spring-fast) var(--va-ease-spring-bouncy);
 }
 
 .collapsedDot:hover {
   color: var(--va-primary);
+  transform: scale(1.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .collapseBtn,
+  .item,
+  .icon,
+  .chevron,
+  .sub,
+  .subItem,
+  .collapsedDot {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
 }
