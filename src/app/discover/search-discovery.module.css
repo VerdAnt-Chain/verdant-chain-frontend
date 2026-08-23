@@ -35,8 +35,32 @@
   grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
 }
 
+@keyframes va-bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.55) translateY(18px);
+    border-radius: var(--va-shape-full);
+    filter: blur(2px);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.06) translateY(-4px);
+    filter: blur(0);
+  }
+  75% {
+    transform: scale(0.98) translateY(1px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
 .resultCard {
-  animation: va-spring-enter var(--va-motion-spring-default) var(--va-ease-spring-standard) both;
+  animation: va-bloom var(--va-motion-spring-bouncy) var(--va-ease-spring-bouncy) both;
+  will-change: transform, opacity;
+  transform-origin: center center;
 }
 
 .resultCard:nth-child(1) {
@@ -58,17 +82,82 @@
   animation-delay: calc(5 * var(--va-stagger-step));
 }
 
+.splash {
+  position: fixed;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--va-primary);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0.98;
+  will-change: transform, opacity;
+  /* goopy blob shape */
+  box-shadow:
+    0 0 0 8px color-mix(in srgb, var(--va-primary) 22%, transparent),
+    0 0 32px color-mix(in srgb, var(--va-primary) 35%, transparent);
+}
+
+.splashActive {
+  transform: translate(-50%, -50%) scale(140);
+  opacity: 1;
+  transition: transform 680ms var(--va-ease-spring-bouncy);
+}
+
+.splashInner {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    color-mix(in srgb, var(--va-primary-container) 65%, var(--va-primary)) 0%,
+    var(--va-primary) 58%,
+    color-mix(in srgb, var(--va-accent-leaf) 35%, var(--va-primary)) 100%
+  );
+  animation: va-bloom 520ms var(--va-ease-spring-bouncy) both;
+}
+
+.splashRipple {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--va-primary-container) 55%, transparent);
+  opacity: 0;
+  animation: ripple 560ms var(--va-ease-emphasized-decelerate) both;
+  animation-delay: 80ms;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
 .header {
   display: flex;
   align-items: center;
   gap: var(--va-space-3);
   margin-bottom: var(--va-space-4);
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .farmerId {
   font-family: var(--va-font-mono);
   font-size: var(--va-type-label-md);
   color: var(--va-on-surface-variant);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: break-all;
 }
 
 .meta {
