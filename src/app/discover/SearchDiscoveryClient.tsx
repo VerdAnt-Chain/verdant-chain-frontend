@@ -6,94 +6,10 @@ import { Card } from "@/components/ui"
 import { Heading, Text, StatusPill, Button, Spinner, Input } from "@/components/ui"
 import { searchFarmers } from "@/lib/api/farmers"
 import { shortAddress } from "@/lib/api/address"
+import { playModernClick } from "@/lib/ui/sound"
 import { useRouter } from "next/navigation"
 import { Grid } from "@/components/ui"
 import styles from "./search-discovery.module.css"
-
-// Shared AudioContext — created lazily on first user gesture, reused for all droplets
-let audioCtx: AudioContext | null = null
-
-function getAudioContext(): AudioContext | null {
-  try {
-    if (typeof window === "undefined") return null
-    if (audioCtx) return audioCtx
-    const AudioCtx =
-      (
-        window as unknown as {
-          AudioContext: typeof AudioContext
-          webkitAudioContext: typeof AudioContext
-        }
-      ).AudioContext ??
-      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-    if (!AudioCtx) return null
-    audioCtx = new AudioCtx()
-    return audioCtx
-  } catch {
-    return null
-  }
-}
-
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
-  )
-}
-
-/** One giant water droplet — single deep plop with long decay. */
-function playGiantDroplet() {
-  try {
-    const ctx = getAudioContext()
-    if (!ctx) return
-    const volume = prefersReducedMotion() ? 0.16 : 0.5
-    const now = ctx.currentTime
-
-    const osc = ctx.createOscillator()
-    const gain = ctx.createGain()
-    const filt = ctx.createBiquadFilter()
-    filt.type = "lowpass"
-    filt.frequency.value = 750
-    filt.Q.value = 0.9
-    osc.type = "sine"
-    osc.frequency.setValueAtTime(420, now)
-    osc.frequency.exponentialRampToValueAtTime(58, now + 0.42)
-    gain.gain.setValueAtTime(volume, now)
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55)
-    osc.connect(filt).connect(gain).connect(ctx.destination)
-    osc.start(now)
-    osc.stop(now + 0.55)
-  } catch {
-    // ignore — audio not available
-  }
-}
-
-/** Tiny muffled droplet click — soft, quiet, heavily low-passed blip. */
-function playTinyDroplet() {
-  try {
-    const ctx = getAudioContext()
-    if (!ctx) return
-    if (prefersReducedMotion()) return
-    // Skip while a splash transition is running
-    const volume = 0.05
-    const now = ctx.currentTime
-
-    const osc = ctx.createOscillator()
-    const gain = ctx.createGain()
-    const filt = ctx.createBiquadFilter()
-    filt.type = "lowpass"
-    filt.frequency.value = 480
-    osc.type = "sine"
-    osc.frequency.setValueAtTime(300 + Math.random() * 90, now)
-    osc.frequency.exponentialRampToValueAtTime(120, now + 0.07)
-    gain.gain.setValueAtTime(volume, now)
-    gain.gain.exponentialRampToValueAtTime(0.0008, now + 0.09)
-    osc.connect(filt).connect(gain).connect(ctx.destination)
-    osc.start(now)
-    osc.stop(now + 0.09)
-  } catch {
-    // ignore — audio not available
-  }
-}
 
 export function SearchDiscoveryClient() {
   const [query, setQuery] = useState("")
@@ -116,23 +32,24 @@ export function SearchDiscoveryClient() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [splash, setSplash] = useState<{ x: number; y: number } | null>(null)
+  type SplashOrigin = { cx: number; cy: number; w: number; h: number; scale: number }
+  const [splash, setSplash] = useState<SplashOrigin | null>(null)
   const router = useRouter()
 
   const handleCardClick = (e: React.MouseEvent, address: string) => {
     if (splash) return
-    // Splash originates from the selected result — center of the clicked card
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-    setSplash({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
-    playGiantDroplet()
+    // Splash expands from the selected result itself — match the card's bounds
+    const el = e.currentTarget as HTMLElement
+    const r = el.getBoundingClientRect()
+    const cx = r.left + r.width / 2
+    const cy = r.top + r.height / 2
+    const needed = Math.hypot(window.innerWidth, window.innerHeight) * 1.15
+    const scale = Math.max(needed / Math.min(r.width, r.height), 8)
+    setSplash({ cx, cy, w: r.width, h: r.height, scale })
+    playModernClick("select")
     window.setTimeout(() => {
       router.push("/farmers/" + address)
     }, 420)
-  }
-
-  const handleCardHover = () => {
-    if (splash) return
-    playTinyDroplet()
   }
 
   const normalized = submittedQuery.trim()
@@ -235,8 +152,8 @@ export function SearchDiscoveryClient() {
                 key={farmer.address}
                 elevation={1}
                 className={styles.resultCard}
+                data-sound="none"
                 onClick={(e) => handleCardClick(e, farmer.address)}
-                onMouseEnter={handleCardHover}
               >
                 <div className={styles.header}>
                   <StatusPill
@@ -269,7 +186,15 @@ export function SearchDiscoveryClient() {
           {splash && (
             <div
               className={`${styles.splash} ${styles.splashActive}`}
-              style={{ left: splash.x, top: splash.y } as React.CSSProperties}
+              style={
+                {
+                  left: splash.cx,
+                  top: splash.cy,
+                  width: splash.w,
+                  height: splash.h,
+                  "--splash-scale": splash.scale,
+                } as React.CSSProperties
+              }
               aria-hidden="true"
             >
               <span className={styles.splashInner} />

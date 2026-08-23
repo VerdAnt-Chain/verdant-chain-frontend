@@ -82,50 +82,53 @@
   animation-delay: calc(5 * var(--va-stagger-step));
 }
 
+/* Splash — expands from the selected result's exact bounds.
+   Sized to the clicked card via inline width/height, centered on it,
+   then scaled up by --splash-scale with a spring so it visibly grows
+   out of the card rather than appearing. */
 .splash {
   position: fixed;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
+  border-radius: var(--va-shape-xl);
   background: var(--va-primary);
   pointer-events: none;
   z-index: 9999;
-  transform: translate(-50%, -50%) scale(0);
-  opacity: 0.98;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
   will-change: transform, opacity;
-  /* goopy blob shape */
   box-shadow:
-    0 0 0 8px color-mix(in srgb, var(--va-primary) 22%, transparent),
-    0 0 32px color-mix(in srgb, var(--va-primary) 35%, transparent);
+    0 0 0 10px color-mix(in srgb, var(--va-primary) 20%, transparent),
+    0 0 40px color-mix(in srgb, var(--va-primary) 30%, transparent);
 }
 
 .splashActive {
-  transform: translate(-50%, -50%) scale(140);
-  opacity: 1;
-  transition: transform 680ms var(--va-ease-spring-bouncy);
+  transform: translate(-50%, -50%) scale(var(--splash-scale, 60));
+  transition:
+    transform 620ms var(--va-ease-spring-bouncy),
+    border-radius 620ms var(--va-ease-spring-bouncy);
+  /* As it scales, the radius eases toward a circle */
+  border-radius: var(--va-shape-full);
 }
 
 .splashInner {
   position: absolute;
-  inset: -4px;
-  border-radius: 50%;
+  inset: 0;
+  border-radius: inherit;
   background: radial-gradient(
-    circle at 30% 30%,
-    color-mix(in srgb, var(--va-primary-container) 65%, var(--va-primary)) 0%,
-    var(--va-primary) 58%,
-    color-mix(in srgb, var(--va-accent-leaf) 35%, var(--va-primary)) 100%
+    circle at 32% 28%,
+    color-mix(in srgb, var(--va-primary-container) 70%, var(--va-primary)) 0%,
+    var(--va-primary) 55%,
+    color-mix(in srgb, var(--va-accent-leaf) 30%, var(--va-primary)) 100%
   );
-  animation: va-bloom 520ms var(--va-ease-spring-bouncy) both;
 }
 
 .splashRipple {
   position: absolute;
-  inset: -12px;
-  border-radius: 50%;
-  border: 2px solid color-mix(in srgb, var(--va-primary-container) 55%, transparent);
+  inset: -14px;
+  border-radius: inherit;
+  border: 2px solid color-mix(in srgb, var(--va-primary-container) 60%, transparent);
   opacity: 0;
   animation: ripple 560ms var(--va-ease-emphasized-decelerate) both;
-  animation-delay: 80ms;
+  animation-delay: 90ms;
 }
 
 @keyframes ripple {

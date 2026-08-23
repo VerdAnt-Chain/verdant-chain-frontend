@@ -4,6 +4,7 @@ import { ThemeScript } from "@/components/theme/theme-script"
 import { SiteHeader } from "@/components/site-header/site-header"
 import { Sidebar } from "@/components/sidebar/sidebar"
 import { WalletProvider } from "@/components/wallet/wallet-provider"
+import { ClickSounds } from "@/components/sound/click-sounds"
 import "@/styles/globals.css"
 
 const geistSans = Geist({
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: { children: import("react").Rea
       </head>
       <body>
         <WalletProvider>
+          <ClickSounds />
           <SiteHeader />
           <div style={{ display: "flex", minHeight: "calc(100vh - 64px)", alignItems: "stretch" }}>
             <Sidebar />
