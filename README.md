@@ -10,6 +10,7 @@ VerdAnt is a full-stack ecosystem that anchors farm identity, verification, equi
 - [Quick Start](#quick-start)
 - [Scripts](#scripts)
 - [Architecture](#architecture)
+- [Layout & Navigation](#layout--navigation)
 - [Route Map](#route-map)
 - [Design System](#design-system)
 - [API & Data Layer](#api--data-layer)
@@ -31,46 +32,48 @@ VerdAnt is a full-stack ecosystem that anchors farm identity, verification, equi
 
 ```bash
 # 1. Clone the repository
-git clone git@github-second:KXYWISE/verdant-chain-frontend.git
+git clone git@github.com:VerdAnt-Chain/verdant-chain-frontend.git
 cd verdant-frontend
 
 # 2. Install dependencies
 npm install
 
-# 3. Start development server
-npm run dev
+# 3. Start development server (HTTPS mode for Freighter)
+npm run dev:https
 
 # 4. Open in browser
-open http://localhost:3000
+open https://localhost:3000
 ```
 
-For API-backed routes (`/discover`, `/farmers/[address]`), the backend must be running and `src/lib/api/config.ts` must point at it.
+For API-backed routes (`/discover`, `/farmers/[address]`), the backend must be running on `http://localhost:8080` and `src/lib/api/config.ts` must point at it.
 
 ## Scripts
 
-| Command                | Purpose                                         |
-| ---------------------- | ----------------------------------------------- |
-| `npm run dev`          | Development server with hot reload              |
-| `npm run build`        | Production build (static HTML + SSG)            |
-| `npm run start`        | Serve production build                          |
-| `npm run lint`         | ESLint check                                    |
-| `npm run lint:fix`     | ESLint auto-fix                                 |
-| `npm run format`       | Prettier write                                  |
-| `npm run format:check` | Prettier check                                  |
-| `npm run typecheck`    | TypeScript check (`tsc --noEmit`)               |
-| `npm test`             | Vitest (unit/component) run                     |
-| `npm run test:watch`   | Vitest watch mode                               |
-| `npm run test:e2e`     | Playwright E2E (needs `npx playwright install`) |
+| Command | Purpose |
+|---------|---------|
+| `npm run dev` | Development server (HTTP) |
+| `npm run dev:https` | Development server with self-signed HTTPS (required for Freighter) |
+| `npm run build` | Production build (static HTML + SSG) |
+| `npm run start` | Serve production build |
+| `npm run lint` | ESLint check |
+| `npm run lint:fix` | ESLint auto-fix |
+| `npm run format` | Prettier write |
+| `npm run format:check` | Prettier check |
+| `npm run typecheck` | TypeScript check (`tsc --noEmit`) |
+| `npm test` | Vitest (unit/component) run |
+| `npm run test:watch` | Vitest watch mode |
+| `npm run test:e2e` | Playwright E2E (needs `npx playwright install`) |
 
 ## Architecture
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │  Next.js App Router (src/app/)                                │
-│   page.tsx            → home / pillar cards                   │
+│   page.tsx            → home / hero + pillar cards            │
 │   discover/           → AgriScout search grid (API)           │
 │   farmers/[address]/  → farmer profile (API)                  │
 │   verify|equipment|financing|livestock → feature landings     │
+│   account|profile|settings → account shell (sidebar)          │
 │   design-system/      → token + primitive showcase            │
 └──────────────┬───────────────────────────────────────────────┘
                │  server components / RSC
@@ -79,7 +82,10 @@ For API-backed routes (`/discover`, `/farmers/[address]`), the backend must be r
 │  Client components (src/components/, src/app/**/Client.tsx)   │
 │   ui/           → primitives (Button, Card, StatusPill, …)     │
 │   feature-landing/ → shared landing surface                    │
-│   wallet/       → WalletProvider, WalletButton                 │
+│   wallet/       → WalletProvider, WalletButton, AuthButton     │
+│   sidebar/      → collapsible sidebar with Account group       │
+│   site-header/  → top navigation bar                           │
+│   hero/         → LivingSystem animated SVG                    │
 └──────────────┬───────────────────────────────────────────────┘
                │
                ▼
@@ -98,20 +104,52 @@ For API-backed routes (`/discover`, `/farmers/[address]`), the backend must be r
 
 1. `PreferencesProvider` (outermost) — locale/currency preferences.
 2. `ToastProvider` — global notification system.
-3. `WalletProvider` (innermost) — Stellar wallet connections.
+3. `WalletProvider` (innermost) — Stellar wallet connections, session restore on mount.
+
+## Layout & Navigation
+
+### Site Header
+
+Fixed top bar with:
+- **Logo**: "V" wordmark + "VerdAnt" brand
+- **Primary nav**: AgriScout, Verification, Equipment, Financing, Livestock, Design system
+- **Actions**: Theme toggle (light/dark), Connect Freighter button
+
+### Sidebar
+
+Collapsible left sidebar with:
+- **Home** — links to `/`
+- **Discover** — links to `/discover` (AgriScout search)
+- **Account** group (collapsible):
+  - Overview — `/account`
+  - Profile — `/profile`
+  - Settings — `/settings`
+
+Sidebar state persisted to `localStorage` (`verdant.sidebar.collapsed`, `verdant.sidebar.accountOpen`).
+
+### Home Page (`/`)
+
+The landing page features:
+- **Hero section** with animated "LivingSystem" SVG (organic branching visualization)
+- **Metrics strip**: Verified assets (12.4k), Farmers onboard (3.2k), Proof liveness (98.1%), User status
+- **Five pillar cards**: AgriScout, AgroProof, AgriLease, FarmFund, LivestockPass
+- **Footer**: "Foundation preview — the design system and shell."
 
 ## Route Map
 
-| Route                | Purpose                                                        | Data Source                    |
-| -------------------- | -------------------------------------------------------------- | ------------------------------ |
-| `/`                  | Home: hero + five pillar cards linking to surfaces             | static                         |
-| `/discover`          | **AgriScout** discovery: search form, results grid, pagination | `GET /api/v1/farmers` (AD-010) |
-| `/farmers/[address]` | **AgriScout** farmer profile: metadata + verification markers  | `GET /api/v1/farmers/:address` |
-| `/verify`            | **AgroProof** feature landing (verification along the chain)   | static demo data               |
-| `/equipment`         | **AgriLease** feature landing (escrowed equipment bookings)    | static demo data               |
-| `/financing`         | **FarmFund** feature landing (milestone financing)             | static demo data               |
-| `/livestock`         | **LivestockPass** feature landing (livestock identity/history) | static demo data               |
-| `/design-system`     | Design-system showcase (tokens + primitives)                   | static                         |
+| Route | Purpose | Data Source |
+|-------|---------|-------------|
+| `/` | Home: hero + LivingSystem animation, metrics strip, five pillar cards | static |
+| `/discover` | **AgriScout** discovery: search form, results grid, pagination | `GET /api/v1/farmers` (AD-010) |
+| `/farmers/[address]` | **AgriScout** farmer profile: metadata + verification markers | `GET /api/v1/farmers/:address` |
+| `/verify` | **AgroProof** feature landing: harvest batch, soil report, invoice | static demo data |
+| `/equipment` | **AgriLease** feature landing: tractor, harvester, irrigation | static demo data |
+| `/financing` | **FarmFund** feature landing: milestones (land prep, planting, harvest) | static demo data |
+| `/livestock` | **LivestockPass** feature landing: cow, goat records | static demo data |
+| `/account` | Account Overview: wallet connection status, address display | wallet state |
+| `/profile` | Profile: farmer registration form (auth-gated) | `POST /api/v1/farmers/register` |
+| `/settings` | Settings: appearance theme, wallet management, danger zone | local state |
+| `/design-system` | Design-system showcase: tokens + primitives | static |
 
 ## Design System
 
@@ -134,6 +172,7 @@ Verification marker kinds map to pill tones (yellow/green/blue/purple/teal/grey)
 - **No utility CSS**: all layout uses CSS Modules + tokens.
 - **Dark mode**: first-class via `prefers-color-scheme` + `data-theme` override, persisted by the theme store.
 - **Semantic tokens**: always use CSS custom properties, never hard-code colors.
+- **M3 Expressive**: spring animations via `va-motion-expressive-default`, organic shapes via `va-shape-*` tokens.
 
 ## API & Data Layer
 
@@ -143,7 +182,7 @@ Verification marker kinds map to pill tones (yellow/green/blue/purple/teal/grey)
 - `types.ts` — shared API types (`FarmerRecord`, `FarmerSearchResponse`, `AuthChallenge`, `AuthVerifyPayload`, `AuthVerifyResponse`, …).
 - `farmers.ts` — farmer endpoints (search, profile, register, update).
 - `auth.ts` — SEP-40 auth endpoints (`getAuthChallenge`, `verifyAuth`, `getAuthSession`).
-- `config.ts` — API base URL configuration.
+- `config.ts` — API base URL configuration (`NEXT_PUBLIC_API_BASE_URL` → `/api/v1` via `next.config.ts` rewrites).
 - `address.ts` — Stellar address validation helpers.
 
 API contracts (canonical): the coordination root's `docs/api/farmers.md`.
@@ -157,23 +196,25 @@ API contracts (canonical): the coordination root's `docs/api/farmers.md`.
   1. `connectWallet()` → Stellar `G…` address
   2. `POST /api/v1/auth/challenge { address }` → `{ domain, nonce, timestamp, address }`
   3. build SEP-40 message text (byte-identical to the backend `sep40_message`)
-  4. sign with Freighter `signMessage`
+  4. sign with Freighter `signMessage(message)` (address already in message content)
   5. `POST /api/v1/auth/verify` → `{ token, address, roles, expires_at }`
   6. persist bearer token
   - `signOut()` clears the token.
 - `auth.test.ts` — message builder + not-connected error + full sign-in happy path tests.
 
-`WalletProvider` (in `src/components/wallet/wallet-provider.tsx`) loads the persisted token on app mount. The farmer register handler signs in before calling `registerFarmer`.
+`WalletProvider` (in `src/components/wallet/wallet-provider.tsx`) loads the persisted token on app mount via `loadAuthSession()`. The `AuthButton` (in `src/components/wallet/auth-button.tsx`) displays connection state and handles sign-in/sign-out. The farmer register handler signs in before calling `registerFarmer`.
 
 ## Environment Variables
 
 Next.js public variables must be prefixed with `NEXT_PUBLIC_` and are exposed to browser JavaScript. Secrets must never be stored in `NEXT_PUBLIC_` variables. See `.env.example`:
 
-| Variable                           | Purpose                                                                                                                               |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL`             | Canonical site URL for `metadataBase`, Open Graph/Twitter previews, `robots.txt`, `sitemap.xml` (defaults to `http://localhost:3000`) |
-| `NEXT_PUBLIC_WALLET_RPC_URL`       | Reserved — public JSON-RPC endpoint                                                                                                   |
-| `NEXT_PUBLIC_WALLET_CONNECT_RELAY` | Reserved — WalletConnect relay URL                                                                                                    |
+| Variable | Purpose |
+|----------|---------|
+| `NEXT_PUBLIC_SITE_URL` | Canonical site URL for `metadataBase`, Open Graph/Twitter previews, `robots.txt`, `sitemap.xml` (defaults to `http://localhost:3000`) |
+| `NEXT_PUBLIC_WALLET_RPC_URL` | Reserved — public JSON-RPC endpoint |
+| `NEXT_PUBLIC_WALLET_CONNECT_RELAY` | Reserved — WalletConnect relay URL |
+
+The `next.config.ts` rewrites use `VERDANT_BACKEND_URL` (server-side only) to proxy `/api/v1/:path*` → `${backendUrl}/api/v1/:path*` in development.
 
 ## Testing
 
@@ -181,7 +222,7 @@ Next.js public variables must be prefixed with `NEXT_PUBLIC_` and are exposed to
 npm test
 ```
 
-Current suite: **55 tests passing** across 12 files, covering UI primitives (Button, Container, Grid, Heading, Input, Stack, StatusPill, ThemeToggle), API client + address helpers, wallet store, and the SEP-40 sign-in flow.
+Current suite: **51 tests passing** across 11 files, covering UI primitives (Button, Container, Grid, Heading, Input, Stack, StatusPill, ThemeToggle), API client + address helpers, wallet store, and the SEP-40 sign-in flow.
 
 ## E2E Testing
 
@@ -197,7 +238,7 @@ Playwright specs live in `e2e/`.
 ```
 src/
 ├── app/                    # routes (App Router)
-│   ├── page.tsx            #   home / pillar cards
+│   ├── page.tsx            #   home / hero + LivingSystem + pillar cards
 │   ├── layout.tsx          #   root layout + providers
 │   ├── design-system/      #   design-system showcase
 │   ├── discover/           #   AgriScout search (SearchDiscoveryClient)
@@ -205,11 +246,17 @@ src/
 │   ├── verify/             #   AgroProof landing
 │   ├── equipment/          #   AgriLease landing
 │   ├── financing/          #   FarmFund landing
-│   └── livestock/          #   LivestockPass landing
+│   ├── livestock/          #   LivestockPass landing
+│   ├── account/            #   Account Overview (auth-gated)
+│   ├── profile/            #   Profile create/edit (auth-gated)
+│   └── settings/           #   Settings (appearance, wallet, danger zone)
 ├── components/
 │   ├── ui/                 #   design-system primitives (+ tests)
 │   ├── feature-landing/    #   shared feature landing component
-│   ├── wallet/             #   WalletProvider, WalletButton
+│   ├── wallet/             #   WalletProvider, WalletButton, AuthButton
+│   ├── sidebar/            #   collapsible sidebar with Account group
+│   ├── site-header/        #   top navigation bar
+│   ├── hero/               #   LivingSystem animated SVG
 │   └── theme/              #   theme script
 ├── styles/
 │   ├── globals.css         #   base/reset + token import
