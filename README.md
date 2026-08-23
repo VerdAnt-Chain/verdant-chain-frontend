@@ -2,7 +2,14 @@
 
 **The user-facing application for the VerdAnt ecosystem — open agricultural technology & financial infrastructure built on Stellar/Soroban.**
 
-VerdAnt is a full-stack ecosystem that anchors farm identity, verification, equipment leasing, financing, and livestock provenance on Stellar/Soroban while keeping documents and media off-chain. This repository delivers the design system, the AgriScout discovery + farmer profile surfaces, four feature landing pages (AgroProof, AgriLease, FarmFund, LivestockPass), and the SEP-40 Freighter wallet-connect flow against the VerdAnt backend.
+VerdAnt is a full-stack ecosystem that anchors farm identity, verification, equipment leasing, financing, and livestock provenance on Stellar/Soroban while keeping documents and media off-chain.
+
+This repository delivers:
+
+- **Four working product cores** — AgroProof (proofs), AgriLease (equipment + leases), FarmFund (projects + milestones), LivestockPass (animals + provenance) — each with explorer, detail, create, and mutation journeys backed by typed API clients
+- **AgriScout** discovery + farmer profiles against the Farmer API
+- **SEP-40 Freighter wallet authentication** with persistent bearer sessions
+- A **Material 3 Expressive design system** ('digital greenhouse' identity: botanical tonal palette, organic shapes, spring physics, living-system hero)
 
 ## Table of Contents
 
@@ -45,7 +52,7 @@ npm run dev:https
 open https://localhost:3000
 ```
 
-For API-backed routes (`/discover`, `/farmers/[address]`), the backend must be running on `http://localhost:8080` and `src/lib/api/config.ts` must point at it.
+The dev server proxies `/api/v1/*` to the backend (`VERDANT_BACKEND_URL`, default `http://localhost:8080`). Farmer and auth endpoints are live against the real backend; the four newer cores (proofs/equipment/projects/livestock) fall back to an in-memory demo store until their backend endpoints ship, so every workflow is explorable out of the box.
 
 ## Scripts
 
@@ -72,8 +79,13 @@ For API-backed routes (`/discover`, `/farmers/[address]`), the backend must be r
 │   page.tsx            → home / hero + pillar cards            │
 │   discover/           → AgriScout search grid (API)           │
 │   farmers/[address]/  → farmer profile (API)                  │
-│   verify|equipment|financing|livestock → feature landings     │
+│   proofs/ (+create,[id])  → AgroProof explorer & workflow     │
+│   equipment/ (+new,[id])  → AgriLease marketplace & leases    │
+│   projects/ (+create,[id])→ FarmFund funding & milestones     │
+│   livestock/ (+register,[id]) → LivestockPass provenance      │
+│   verify|financing    → feature landing pages                 │
 │   account|profile|settings → account shell (sidebar)          │
+│   api/v1/**           → dev proxy/demo data layer             │
 │   design-system/      → token + primitive showcase            │
 └──────────────┬───────────────────────────────────────────────┘
                │  server components / RSC
@@ -81,11 +93,14 @@ For API-backed routes (`/discover`, `/farmers/[address]`), the backend must be r
 ┌──────────────────────────────────────────────────────────────┐
 │  Client components (src/components/, src/app/**/Client.tsx)   │
 │   ui/           → primitives (Button, Card, StatusPill, …)     │
-│   feature-landing/ → shared landing surface                    │
-│   wallet/       → WalletProvider, WalletButton, AuthButton     │
-│   sidebar/      → collapsible sidebar with Account group       │
-│   site-header/  → top navigation bar                           │
+│   core/         → EmptyState, Skeleton, FilterBar, Timeline,   │
+│                   ProgressIndicator, EvidenceCard              │
+│   wallet/       → WalletProvider, AuthButton (SEP-40 states)   │
+│   sidebar/      → collapsible nav: Explore + Account groups    │
+│   site-header/  → floating pill navigation                     │
 │   hero/         → LivingSystem animated SVG                    │
+│   sound/        → M3 expressive interaction clicks             │
+│   feature-landing/ → shared landing surface                    │
 └──────────────┬───────────────────────────────────────────────┘
                │
                ▼
@@ -102,32 +117,38 @@ For API-backed routes (`/discover`, `/farmers/[address]`), the backend must be r
 
 **Provider stack** (in `src/app/layout.tsx`):
 
-1. `PreferencesProvider` (outermost) — locale/currency preferences.
-2. `ToastProvider` — global notification system.
-3. `WalletProvider` (innermost) — Stellar wallet connections, session restore on mount.
+1. `ClickSounds` — global M3-expressive interaction sounds (tap/select).
+2. `WalletProvider` — Stellar wallet connection + SEP-40 session restore on mount.
 
 ## Layout & Navigation
 
 ### Site Header
 
-Fixed top bar with:
+Floating translucent pill (backdrop-blur) with:
 
 - **Logo**: "V" wordmark + "VerdAnt" brand
-- **Primary nav**: AgriScout, Verification, Equipment, Financing, Livestock, Design system
-- **Actions**: Theme toggle (light/dark), Connect Freighter button
+- **Primary nav**: AgriScout · Verification · Equipment · Financing · Livestock · Design system
+- **Actions**: Theme toggle (light/dark), wallet/auth button
 
 ### Sidebar
 
-Collapsible left sidebar with:
+Collapsible floating card sidebar with two groups:
 
-- **Home** — links to `/`
-- **Discover** — links to `/discover` (AgriScout search)
-- **Account** group (collapsible):
-  - Overview — `/account`
-  - Profile — `/profile`
-  - Settings — `/settings`
+- **Home** — `/`
+- **Explore** (collapsible):
+  - AgriScout -> `/discover`
+  - AgroProof -> `/proofs`
+  - AgriLease -> `/equipment`
+  - FarmFund -> `/projects`
+  - LivestockPass -> `/livestock`
+- **Account** (collapsible):
+  - Overview -> `/account`
+  - Profile -> `/profile`
+  - Settings -> `/settings`
 
-Sidebar state persisted to `localStorage` (`verdant.sidebar.collapsed`, `verdant.sidebar.accountOpen`).
+On mobile (<900px) the sidebar becomes a floating bottom pill bar.
+
+Sidebar state persisted to `localStorage` (`verdant.sidebar.collapsed`, `verdant.sidebar.exploreOpen`, `verdant.sidebar.accountOpen`).
 
 ### Home Page (`/`)
 
@@ -140,19 +161,44 @@ The landing page features:
 
 ## Route Map
 
-| Route                | Purpose                                                                 | Data Source                     |
-| -------------------- | ----------------------------------------------------------------------- | ------------------------------- |
-| `/`                  | Home: hero + LivingSystem animation, metrics strip, five pillar cards   | static                          |
-| `/discover`          | **AgriScout** discovery: search form, results grid, pagination          | `GET /api/v1/farmers` (AD-010)  |
-| `/farmers/[address]` | **AgriScout** farmer profile: metadata + verification markers           | `GET /api/v1/farmers/:address`  |
-| `/verify`            | **AgroProof** feature landing: harvest batch, soil report, invoice      | static demo data                |
-| `/equipment`         | **AgriLease** feature landing: tractor, harvester, irrigation           | static demo data                |
-| `/financing`         | **FarmFund** feature landing: milestones (land prep, planting, harvest) | static demo data                |
-| `/livestock`         | **LivestockPass** feature landing: cow, goat records                    | static demo data                |
-| `/account`           | Account Overview: wallet connection status, address display             | wallet state                    |
-| `/profile`           | Profile: farmer registration form (auth-gated)                          | `POST /api/v1/farmers/register` |
-| `/settings`          | Settings: appearance theme, wallet management, danger zone              | local state                     |
-| `/design-system`     | Design-system showcase: tokens + primitives                             | static                          |
+### Product cores (functional workflows)
+
+| Route                 | Purpose                                                                               | Data Source                                  |
+| --------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `/proofs`             | **AgroProof** explorer: filter by status / subject / creator                          | `GET /api/v1/proofs`                         |
+| `/proofs/create`      | Create a proof claim (draft)                                                          | `POST /api/v1/proofs`                        |
+| `/proofs/[id]`        | Proof detail: evidence timeline, attach evidence, submit, verifier approve/reject     | `…/evidence` · `…/submit` · `…/verify`       |
+| `/equipment`          | **AgriLease** marketplace: filter by type/availability, daily rates in XLM            | `GET /api/v1/equipment`                      |
+| `/equipment/new`      | List equipment for lease                                                              | `POST /api/v1/equipment`                     |
+| `/equipment/[id]`     | Equipment detail: request lease, owner approve, complete/cancel, lease history        | `GET/POST /api/v1/equipment/:id` · `/leases` |
+| `/projects`           | **FarmFund** explorer: filter by category/status, funding progress bars               | `GET /api/v1/projects`                       |
+| `/projects/create`    | Create a funding project (draft)                                                      | `POST /api/v1/projects`                      |
+| `/projects/[id]`      | Project detail: fund contributions, publish, milestone submit/verify timeline         | `…/publish` · `…/fund` · `…/milestones/*`    |
+| `/livestock`          | **LivestockPass** explorer: filter by species/status                                  | `GET /api/v1/livestock`                      |
+| `/livestock/register` | Register an animal (species, breed, tag, microchip)                                   | `POST /api/v1/livestock`                     |
+| `/livestock/[id]`     | Animal profile: provenance timeline, record health/movement events, transfer workflow | `…/history` · `…/events` · `…/transfer/*`    |
+
+### Discovery & account
+
+| Route                | Purpose                                                               | Data Source                    |
+| -------------------- | --------------------------------------------------------------------- | ------------------------------ |
+| `/`                  | Home: hero + LivingSystem animation, metrics strip, five pillar cards | static                         |
+| `/discover`          | **AgriScout** discovery: search form, results grid, pagination        | `GET /api/v1/farmers` (AD-010) |
+| `/farmers/[address]` | **AgriScout** farmer profile: metadata + verification markers         | `GET /api/v1/farmers/:address` |
+| `/verify`            | **AgroProof** feature landing ("What is AgroProof?")                  | static demo data               |
+| `/financing`         | **FarmFund** feature landing ("What is FarmFund?")                    | static demo data               |
+| `/account`           | Account Overview: biodata card, verifications/profile/ledger stats    | `GET /api/v1/farmers/:address` |
+| `/profile`           | Profile: farmer create/edit form (SEP-40 gated)                       | register / metadata endpoints  |
+| `/settings`          | Settings: appearance, wallet, transaction password, danger zone       | local state                    |
+| `/design-system`     | Design-system showcase: tokens + primitives                           | static                         |
+
+### Data layer for the cores
+
+All core routes talk to `src/lib/api/{proofs,equipment,projects,livestock}.ts`. In development
+(`VERDANT_BACKEND_URL` set), requests hit route handlers under `src/app/api/v1/**` which proxy to
+the real backend; if an upstream endpoint is not implemented yet (404), a clearly-scoped in-memory
+demo store answers so every journey stays usable. Set `VERDANT_DISABLE_MOCK_FALLBACK=1` to force
+pure proxy behaviour. No UI component imports mock data directly.
 
 ## Design System
 
@@ -182,13 +228,19 @@ Verification marker kinds map to pill tones (yellow/green/blue/purple/teal/grey)
 `src/lib/api/`:
 
 - `client.ts` — base fetch client with `Authorization: Bearer` attachment and `setAuthToken`/`getAuthToken`/`loadAuthToken` (`localStorage` persistence, key `verdant.auth.token`).
-- `types.ts` — shared API types (`FarmerRecord`, `FarmerSearchResponse`, `AuthChallenge`, `AuthVerifyPayload`, `AuthVerifyResponse`, …).
-- `farmers.ts` — farmer endpoints (search, profile, register, update).
+- `types.ts` — shared API types for all domains (farmer, proof, equipment, lease, project, milestone, animal, transfer, auth payloads).
+- Domain clients (typed, one per core):
+  - `farmers.ts` — search, profile, register, metadata update
+  - `proofs.ts` — list/get/create, evidence attach, submit, verifier verify
+  - `equipment.ts` — equipment CRUD + lease lifecycle (`approve`/`complete`/`cancel`)
+  - `projects.ts` — CRUD + publish + fund + milestone submit/verify
+  - `livestock.ts` — register/update, event history, transfer accept/complete
+- `format.ts` — `formatStroops()`: BigInt-only integer-safe stroops→XLM formatting (1 XLM = 10⁷ stroops; never floating-point for money).
+- `list.ts` — `toListResponse()` normalizer (paginated envelope or bare array → stable `{ items, pagination }`) and query-builder.
 - `auth.ts` — SEP-40 auth endpoints (`getAuthChallenge`, `verifyAuth`, `getAuthSession`).
-- `config.ts` — API base URL configuration (`NEXT_PUBLIC_API_BASE_URL` → `/api/v1` via `next.config.ts` rewrites).
-- `address.ts` — Stellar address validation helpers.
+- `config.ts` — API base URL configuration.
 
-API contracts (canonical): the coordination root's `docs/api/farmers.md`.
+Canonical contracts live in the coordination root's `docs/api/` (`farmers.md`, `proofs.md`, `equipment.md`, `projects.md`, `livestock.md`).
 
 ## Wallet & SEP-40 Auth
 
@@ -211,11 +263,12 @@ API contracts (canonical): the coordination root's `docs/api/farmers.md`.
 
 Next.js public variables must be prefixed with `NEXT_PUBLIC_` and are exposed to browser JavaScript. Secrets must never be stored in `NEXT_PUBLIC_` variables. See `.env.example`:
 
-| Variable                           | Purpose                                                                                                                               |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL`             | Canonical site URL for `metadataBase`, Open Graph/Twitter previews, `robots.txt`, `sitemap.xml` (defaults to `http://localhost:3000`) |
-| `NEXT_PUBLIC_WALLET_RPC_URL`       | Reserved — public JSON-RPC endpoint                                                                                                   |
-| `NEXT_PUBLIC_WALLET_CONNECT_RELAY` | Reserved — WalletConnect relay URL                                                                                                    |
+| Variable                          | Purpose                                                                                                                               |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_API_BASE_URL`        | Optional direct API base (leave unset for same-origin `/api/v1` via rewrites)                                                         |
+| `NEXT_PUBLIC_SITE_URL`            | Canonical site URL for `metadataBase`, Open Graph/Twitter previews, `robots.txt`, `sitemap.xml` (defaults to `http://localhost:3000`) |
+| `VERDANT_BACKEND_URL`             | Server-side only — proxy target for `/api/v1/:path*` rewrites and route-handler forwarding                                            |
+| `VERDANT_DISABLE_MOCK_FALLBACK=1` | Server-side only — disable the demo-store fallback for cores whose backend endpoints are not implemented yet                          |
 
 The `next.config.ts` rewrites use `VERDANT_BACKEND_URL` (server-side only) to proxy `/api/v1/:path*` → `${backendUrl}/api/v1/:path*` in development.
 
@@ -225,7 +278,7 @@ The `next.config.ts` rewrites use `VERDANT_BACKEND_URL` (server-side only) to pr
 npm test
 ```
 
-Current suite: **51 tests passing** across 11 files, covering UI primitives (Button, Container, Grid, Heading, Input, Stack, StatusPill, ThemeToggle), API client + address helpers, wallet store, and the SEP-40 sign-in flow.
+Current suite: **109 tests passing** across 18 files, covering UI primitives, core workflow primitives (EmptyState/FilterBar), API clients for all five domains (URL/method/body/query assertions), the stroops formatter (including BigInt precision beyond `Number.MAX_SAFE_INTEGER`), list-response normalization, wallet store, and the SEP-40 sign-in flow.
 
 ## E2E Testing
 
@@ -242,30 +295,35 @@ Playwright specs live in `e2e/`.
 src/
 ├── app/                    # routes (App Router)
 │   ├── page.tsx            #   home / hero + LivingSystem + pillar cards
-│   ├── layout.tsx          #   root layout + providers
+│   ├── layout.tsx          #   root layout + providers + ClickSounds
 │   ├── design-system/      #   design-system showcase
 │   ├── discover/           #   AgriScout search (SearchDiscoveryClient)
 │   ├── farmers/[address]/  #   farmer profile (FarmerProfileClient)
-│   ├── verify/             #   AgroProof landing
-│   ├── equipment/          #   AgriLease landing
-│   ├── financing/          #   FarmFund landing
-│   ├── livestock/          #   LivestockPass landing
-│   ├── account/            #   Account Overview (auth-gated)
-│   ├── profile/            #   Profile create/edit (auth-gated)
-│   └── settings/           #   Settings (appearance, wallet, danger zone)
+│   ├── proofs/             #   AgroProof: explorer + create + [id] workflow
+│   ├── equipment/          #   AgriLease: marketplace + new + [id] leases
+│   ├── projects/           #   FarmFund: explorer + create + [id] funding
+│   ├── livestock/          #   LivestockPass: explorer + register + [id]
+│   ├── verify/ financing/  #   feature landing pages
+│   ├── account/            #   Account Overview (biodata + stats)
+│   ├── profile/            #   Profile create/edit (SEP-40 gated)
+│   ├── settings/           #   Settings (appearance, wallet, security)
+│   └── api/v1/             #   dev data layer: backend proxy + demo store
 ├── components/
 │   ├── ui/                 #   design-system primitives (+ tests)
-│   ├── feature-landing/    #   shared feature landing component
-│   ├── wallet/             #   WalletProvider, WalletButton, AuthButton
-│   ├── sidebar/            #   collapsible sidebar with Account group
-│   ├── site-header/        #   top navigation bar
+│   ├── core/               #   workflow primitives (EmptyState, Skeleton,
+│   │                       #   FilterBar, Timeline, ProgressIndicator, …)
+│   ├── wallet/             #   WalletProvider, AuthButton
+│   ├── sidebar/            #   collapsible nav (Explore + Account groups)
+│   ├── site-header/        #   floating pill navigation
 │   ├── hero/               #   LivingSystem animated SVG
+│   ├── sound/              #   M3 expressive click sounds
 │   └── theme/              #   theme script
 ├── styles/
 │   ├── globals.css         #   base/reset + token import
 │   └── tokens/             #   design tokens (CSS custom properties)
 ├── lib/
-│   ├── api/                #   data layer (client, types, endpoints)
+│   ├── api/                #   typed clients per domain + format/list utils
+│   ├── ui/sound.ts         #   interaction sound engine
 │   ├── wallet/             #   Freighter + SEP-40 auth
 │   └── theme-store.ts      #   theme persistence
 └── test/setup.ts           #   Vitest setup

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { demo } from "../../_demo/router"
+import { getMockStore } from "../_mockStore"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ address: string }> }) {
   const { address } = await params

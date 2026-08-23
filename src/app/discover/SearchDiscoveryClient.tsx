@@ -129,7 +129,10 @@ export function SearchDiscoveryClient() {
             {error}
           </Text>
           <div className={shared.actions}>
-            <Button variant="outlined" onClick={() => runSearch(pagination.page, pagination.pageSize)}>
+            <Button
+              variant="outlined"
+              onClick={() => runSearch(pagination.page, pagination.pageSize)}
+            >
               Retry
             </Button>
           </div>
@@ -180,7 +183,8 @@ export function SearchDiscoveryClient() {
                   {farmer.name}
                 </Heading>
                 <Text tone="muted" as="p" style={{ marginTop: 4 }}>
-                  {[farmer.region, farmer.district].filter(Boolean).join(" · ") || "Location not listed"}
+                  {[farmer.region, farmer.district].filter(Boolean).join(" · ") ||
+                    "Location not listed"}
                 </Text>
               </Card>
             ))}

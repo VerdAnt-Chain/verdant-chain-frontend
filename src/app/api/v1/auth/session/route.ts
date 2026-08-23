@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server"
-import { demo } from "../../_demo/router"
 export async function GET(req: NextRequest) {
   const backendUrl = process.env.VERDANT_BACKEND_URL
   if (backendUrl) {

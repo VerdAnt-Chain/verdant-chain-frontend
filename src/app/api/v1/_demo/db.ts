@@ -59,6 +59,7 @@ export function db(): Store {
       },
     ]
     const eq = (
+      id: string,
       name: string,
       type: string,
       condition: string,
@@ -66,7 +67,9 @@ export function db(): Store {
       rate: number,
       available: boolean
     ) => ({
-      id: `va:equipment:${uid()}`,
+      // Stable seed IDs keep links valid when a dev-server route worker or
+      // hot reload recreates this in-memory demonstration catalogue.
+      id,
       name,
       type,
       owner: KEY,
@@ -80,6 +83,7 @@ export function db(): Store {
       updatedAt: t,
     })
     const tractor = eq(
+      "va:equipment:019a0000-0000-7000-8000-000000000001",
       "John Deere 6R Tractor",
       "tractor",
       "excellent",
@@ -87,8 +91,17 @@ export function db(): Store {
       50000,
       true
     )
-    const harvester = eq("Claas Harvester", "harvester", "good", "Ashanti, Ejisu", 80000, false)
+    const harvester = eq(
+      "va:equipment:019a0000-0000-7000-8000-000000000002",
+      "Claas Harvester",
+      "harvester",
+      "good",
+      "Ashanti, Ejisu",
+      80000,
+      false
+    )
     const pivot = eq(
+      "va:equipment:019a0000-0000-7000-8000-000000000003",
       "Irrigation Pivot 40ha",
       "irrigation",
       "fair",
