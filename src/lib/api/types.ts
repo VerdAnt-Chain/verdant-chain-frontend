@@ -23,7 +23,10 @@ export type FarmerRecord = {
   registered: boolean
   createdLedger?: number
   updatedLedger?: number
-  metadata?: FarmerMetadataBlock
+  // Backend returns flat FarmerProfileMetadata as `metadata` plus `metadataHash`.
+  // Keep support for the docs contract shape { hash, profile } for forward compat.
+  metadata?: FarmerProfileMetadata | FarmerMetadataBlock
+  metadataHash?: string
   verificationMarkers?: VerificationMarker[]
 }
 

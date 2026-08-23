@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getMockStore } from "../_mockStore"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ address: string }> }) {
   const { address } = await params
@@ -12,37 +13,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ addr
     })
   }
 
-  // Dev mock — return a fake farmer for the known mock address, 404 otherwise
-  if (address === "GCWXIWY5VLB5K5UZD5KS2M3SKG7H3RCVQ7YHBO32N44VD5XUU6HBVSXJ") {
-    return NextResponse.json({
-      address,
-      id: `va:farmer:${address}`,
-      registered: true,
-      createdLedger: 1234567,
-      updatedLedger: 1234590,
-      metadata: {
-        hash: "abc123",
-        profile: {
-          name: "Kofi Mensah",
-          region: "Ashanti",
-          district: "Ejisu",
-          bio: "Organic cocoa and maize farmer.",
-        },
-      },
-      verificationMarkers: [
-        {
-          kind: "kyc",
-          issuer: "va:farmer:GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          issuedLedger: 1234568,
-        },
-        {
-          kind: "organic_certified",
-          issuer: "va:farmer:GBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
-          issuedLedger: 1234570,
-        },
-      ],
-    })
-  }
+  // Dev mock — serve from in-memory store so overview reflects profile input
+  const rec = getMockStore().get(address)
+  if (rec) return NextResponse.json(rec)
 
   // Unknown farmer — 404 is expected and handled as "Farmer not found" in UI
   return NextResponse.json({ error: "farmer not found" }, { status: 404 })

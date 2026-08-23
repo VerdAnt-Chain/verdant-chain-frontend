@@ -57,13 +57,18 @@ export default function ProfilePage() {
     try {
       const rec = await getFarmer(wallet.address)
       setFarmer(rec)
-      const p = rec.metadata?.profile
+      // Backend returns flat FarmerProfileMetadata as `metadata`; docs contract nests as metadata.profile
+      const p =
+        (rec.metadata as unknown as { profile?: typeof rec.metadata })?.profile ??
+        (rec.metadata as unknown as typeof form)
+      const flat = p as unknown as FormState
       setForm({
-        name: p?.name ?? "",
-        region: p?.region ?? "",
-        district: p?.district ?? "",
-        bio: p?.bio ?? "",
-        profileImageHash: p?.profileImageHash ?? "",
+        name: flat?.name ?? "",
+        region: flat?.region ?? "",
+        district: flat?.district ?? "",
+        bio: flat?.bio ?? "",
+        profileImageHash:
+          (flat as unknown as { profileImageHash?: string })?.profileImageHash ?? "",
       })
       setSubmitSuccess(null)
     } catch (e) {
@@ -122,14 +127,18 @@ export default function ProfilePage() {
       }
       setFarmer(rec)
       setNotFound(false)
-      const p = rec.metadata?.profile
-      if (p) {
+      const p2 =
+        (rec.metadata as unknown as { profile?: typeof rec.metadata })?.profile ??
+        (rec.metadata as unknown as typeof form)
+      const flat2 = p2 as unknown as FormState
+      if (flat2) {
         setForm({
-          name: p.name ?? "",
-          region: p.region ?? "",
-          district: p.district ?? "",
-          bio: p.bio ?? "",
-          profileImageHash: p.profileImageHash ?? "",
+          name: flat2.name ?? "",
+          region: flat2.region ?? "",
+          district: flat2.district ?? "",
+          bio: flat2.bio ?? "",
+          profileImageHash:
+            (flat2 as unknown as { profileImageHash?: string })?.profileImageHash ?? "",
         })
       }
     } catch (err) {

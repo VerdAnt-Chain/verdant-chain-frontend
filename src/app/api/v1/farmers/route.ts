@@ -1,23 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-
-const MOCK_FARMERS = [
-  {
-    address: "GCWXIWY5VLB5K5UZD5KS2M3SKG7H3RCVQ7YHBO32N44VD5XUU6HBVSXJ",
-    id: "va:farmer:GCWXIWY5VLB5K5UZD5KS2M3SKG7H3RCVQ7YHBO32N44VD5XUU6HBVSXJ",
-    name: "Kofi Mensah",
-    region: "Ashanti",
-    district: "Ejisu",
-    verificationCount: 2,
-  },
-  {
-    address: "GBQWWK3DJ7DZQQ5EV3KY3G2CWNBZ2X6Q7YHBO32N44VD5XUU6HBVSXJ",
-    id: "va:farmer:GBQWWK3DJ7DZQQ5EV3KY3G2CWNBZ2X6Q7YHBO32N44VD5XUU6HBVSXJ",
-    name: "Amara Okafor",
-    region: "Central",
-    district: "Cape Coast",
-    verificationCount: 0,
-  },
-]
+import { getMockStore, mockRecordToSearchItem } from "./_mockStore"
 
 export async function GET(req: NextRequest) {
   const backendUrl = process.env.VERDANT_BACKEND_URL
@@ -31,7 +13,7 @@ export async function GET(req: NextRequest) {
     })
   }
 
-  // Dev mock — simple substring search on name/region/district
+  // Dev mock — substring search on name/region/district, includes dynamically registered farmers
   const q = (req.nextUrl.searchParams.get("q") ?? "").trim().toLowerCase()
   const page = Math.max(1, parseInt(req.nextUrl.searchParams.get("page") ?? "1", 10) || 1)
   const pageSize = Math.min(
@@ -39,9 +21,10 @@ export async function GET(req: NextRequest) {
     Math.max(1, parseInt(req.nextUrl.searchParams.get("pageSize") ?? "20", 10) || 20)
   )
 
-  let items = MOCK_FARMERS
+  const all = Array.from(getMockStore().values()).map(mockRecordToSearchItem)
+  let items = all
   if (q) {
-    items = MOCK_FARMERS.filter(
+    items = all.filter(
       (f) =>
         f.name.toLowerCase().includes(q) ||
         (f.region && f.region.toLowerCase().includes(q)) ||

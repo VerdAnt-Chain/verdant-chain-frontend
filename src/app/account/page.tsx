@@ -67,7 +67,11 @@ export default function AccountPage() {
 
   const isRegistered = farmer?.registered ?? false
   const markers = farmer?.verificationMarkers ?? []
-  const profile = farmer?.metadata?.profile
+  const profile = (() => {
+    const m = farmer?.metadata
+    if (!m) return undefined
+    return "profile" in m ? m.profile : (m as import("@/lib/api/types").FarmerProfileMetadata)
+  })()
   const completeness = (() => {
     if (!profile) return 0
     const fields = [

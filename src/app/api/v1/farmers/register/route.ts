@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getMockStore } from "../_mockStore"
+import type { FarmerProfileMetadata } from "@/lib/api/types"
 
 export async function POST(req: NextRequest) {
   const backendUrl = process.env.VERDANT_BACKEND_URL
@@ -19,17 +21,24 @@ export async function POST(req: NextRequest) {
     })
   }
 
-  // Dev mock — echo back a registered farmer
+  // Dev mock — persist so GET /farmers/[address] and overview reflect profile input
   try {
-    const body = (await req.json()) as { address?: string; metadata?: { name?: string } }
+    const body = (await req.json()) as { address?: string; metadata?: FarmerProfileMetadata }
     if (!body.address) {
       return NextResponse.json({ error: "address is required" }, { status: 400 })
+    }
+    if (!body.metadata?.name?.trim()) {
+      return NextResponse.json({ error: "name is required" }, { status: 400 })
     }
     const auth = req.headers.get("authorization")
     if (!auth) {
       return NextResponse.json({ error: "authorization required" }, { status: 401 })
     }
-    return NextResponse.json({
+    const store = getMockStore()
+    if (store.has(body.address)) {
+      return NextResponse.json({ error: "already registered" }, { status: 409 })
+    }
+    const record = {
       address: body.address,
       id: `va:farmer:${body.address}`,
       registered: true,
@@ -38,14 +47,17 @@ export async function POST(req: NextRequest) {
       metadata: {
         hash: "mockhash",
         profile: {
-          name: body.metadata?.name ?? body.address.slice(0, 8),
-          region: "Ashanti",
-          district: "Ejisu",
-          bio: "Mock farmer registered in dev.",
+          name: body.metadata.name.trim(),
+          region: body.metadata.region?.trim() || undefined,
+          district: body.metadata.district?.trim() || undefined,
+          bio: body.metadata.bio?.trim() || undefined,
+          profileImageHash: body.metadata.profileImageHash?.trim() || undefined,
         },
       },
       verificationMarkers: [],
-    })
+    }
+    store.set(body.address, record as import("@/lib/api/types").FarmerRecord)
+    return NextResponse.json(record)
   } catch {
     return NextResponse.json({ error: "invalid json" }, { status: 400 })
   }

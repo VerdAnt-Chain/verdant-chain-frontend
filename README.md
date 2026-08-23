@@ -49,20 +49,20 @@ For API-backed routes (`/discover`, `/farmers/[address]`), the backend must be r
 
 ## Scripts
 
-| Command | Purpose |
-|---------|---------|
-| `npm run dev` | Development server (HTTP) |
-| `npm run dev:https` | Development server with self-signed HTTPS (required for Freighter) |
-| `npm run build` | Production build (static HTML + SSG) |
-| `npm run start` | Serve production build |
-| `npm run lint` | ESLint check |
-| `npm run lint:fix` | ESLint auto-fix |
-| `npm run format` | Prettier write |
-| `npm run format:check` | Prettier check |
-| `npm run typecheck` | TypeScript check (`tsc --noEmit`) |
-| `npm test` | Vitest (unit/component) run |
-| `npm run test:watch` | Vitest watch mode |
-| `npm run test:e2e` | Playwright E2E (needs `npx playwright install`) |
+| Command                | Purpose                                                            |
+| ---------------------- | ------------------------------------------------------------------ |
+| `npm run dev`          | Development server (HTTP)                                          |
+| `npm run dev:https`    | Development server with self-signed HTTPS (required for Freighter) |
+| `npm run build`        | Production build (static HTML + SSG)                               |
+| `npm run start`        | Serve production build                                             |
+| `npm run lint`         | ESLint check                                                       |
+| `npm run lint:fix`     | ESLint auto-fix                                                    |
+| `npm run format`       | Prettier write                                                     |
+| `npm run format:check` | Prettier check                                                     |
+| `npm run typecheck`    | TypeScript check (`tsc --noEmit`)                                  |
+| `npm test`             | Vitest (unit/component) run                                        |
+| `npm run test:watch`   | Vitest watch mode                                                  |
+| `npm run test:e2e`     | Playwright E2E (needs `npx playwright install`)                    |
 
 ## Architecture
 
@@ -111,6 +111,7 @@ For API-backed routes (`/discover`, `/farmers/[address]`), the backend must be r
 ### Site Header
 
 Fixed top bar with:
+
 - **Logo**: "V" wordmark + "VerdAnt" brand
 - **Primary nav**: AgriScout, Verification, Equipment, Financing, Livestock, Design system
 - **Actions**: Theme toggle (light/dark), Connect Freighter button
@@ -118,6 +119,7 @@ Fixed top bar with:
 ### Sidebar
 
 Collapsible left sidebar with:
+
 - **Home** — links to `/`
 - **Discover** — links to `/discover` (AgriScout search)
 - **Account** group (collapsible):
@@ -130,6 +132,7 @@ Sidebar state persisted to `localStorage` (`verdant.sidebar.collapsed`, `verdant
 ### Home Page (`/`)
 
 The landing page features:
+
 - **Hero section** with animated "LivingSystem" SVG (organic branching visualization)
 - **Metrics strip**: Verified assets (12.4k), Farmers onboard (3.2k), Proof liveness (98.1%), User status
 - **Five pillar cards**: AgriScout, AgroProof, AgriLease, FarmFund, LivestockPass
@@ -137,19 +140,19 @@ The landing page features:
 
 ## Route Map
 
-| Route | Purpose | Data Source |
-|-------|---------|-------------|
-| `/` | Home: hero + LivingSystem animation, metrics strip, five pillar cards | static |
-| `/discover` | **AgriScout** discovery: search form, results grid, pagination | `GET /api/v1/farmers` (AD-010) |
-| `/farmers/[address]` | **AgriScout** farmer profile: metadata + verification markers | `GET /api/v1/farmers/:address` |
-| `/verify` | **AgroProof** feature landing: harvest batch, soil report, invoice | static demo data |
-| `/equipment` | **AgriLease** feature landing: tractor, harvester, irrigation | static demo data |
-| `/financing` | **FarmFund** feature landing: milestones (land prep, planting, harvest) | static demo data |
-| `/livestock` | **LivestockPass** feature landing: cow, goat records | static demo data |
-| `/account` | Account Overview: wallet connection status, address display | wallet state |
-| `/profile` | Profile: farmer registration form (auth-gated) | `POST /api/v1/farmers/register` |
-| `/settings` | Settings: appearance theme, wallet management, danger zone | local state |
-| `/design-system` | Design-system showcase: tokens + primitives | static |
+| Route                | Purpose                                                                 | Data Source                     |
+| -------------------- | ----------------------------------------------------------------------- | ------------------------------- |
+| `/`                  | Home: hero + LivingSystem animation, metrics strip, five pillar cards   | static                          |
+| `/discover`          | **AgriScout** discovery: search form, results grid, pagination          | `GET /api/v1/farmers` (AD-010)  |
+| `/farmers/[address]` | **AgriScout** farmer profile: metadata + verification markers           | `GET /api/v1/farmers/:address`  |
+| `/verify`            | **AgroProof** feature landing: harvest batch, soil report, invoice      | static demo data                |
+| `/equipment`         | **AgriLease** feature landing: tractor, harvester, irrigation           | static demo data                |
+| `/financing`         | **FarmFund** feature landing: milestones (land prep, planting, harvest) | static demo data                |
+| `/livestock`         | **LivestockPass** feature landing: cow, goat records                    | static demo data                |
+| `/account`           | Account Overview: wallet connection status, address display             | wallet state                    |
+| `/profile`           | Profile: farmer registration form (auth-gated)                          | `POST /api/v1/farmers/register` |
+| `/settings`          | Settings: appearance theme, wallet management, danger zone              | local state                     |
+| `/design-system`     | Design-system showcase: tokens + primitives                             | static                          |
 
 ## Design System
 
@@ -208,11 +211,11 @@ API contracts (canonical): the coordination root's `docs/api/farmers.md`.
 
 Next.js public variables must be prefixed with `NEXT_PUBLIC_` and are exposed to browser JavaScript. Secrets must never be stored in `NEXT_PUBLIC_` variables. See `.env.example`:
 
-| Variable | Purpose |
-|----------|---------|
-| `NEXT_PUBLIC_SITE_URL` | Canonical site URL for `metadataBase`, Open Graph/Twitter previews, `robots.txt`, `sitemap.xml` (defaults to `http://localhost:3000`) |
-| `NEXT_PUBLIC_WALLET_RPC_URL` | Reserved — public JSON-RPC endpoint |
-| `NEXT_PUBLIC_WALLET_CONNECT_RELAY` | Reserved — WalletConnect relay URL |
+| Variable                           | Purpose                                                                                                                               |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL`             | Canonical site URL for `metadataBase`, Open Graph/Twitter previews, `robots.txt`, `sitemap.xml` (defaults to `http://localhost:3000`) |
+| `NEXT_PUBLIC_WALLET_RPC_URL`       | Reserved — public JSON-RPC endpoint                                                                                                   |
+| `NEXT_PUBLIC_WALLET_CONNECT_RELAY` | Reserved — WalletConnect relay URL                                                                                                    |
 
 The `next.config.ts` rewrites use `VERDANT_BACKEND_URL` (server-side only) to proxy `/api/v1/:path*` → `${backendUrl}/api/v1/:path*` in development.
 

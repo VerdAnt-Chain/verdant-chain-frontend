@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getMockStore } from "../../_mockStore"
+import type { FarmerProfileMetadata } from "@/lib/api/types"
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ address: string }> }) {
   const { address } = await params
@@ -23,21 +25,33 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ addr
     })
   }
 
-  // Dev mock — echo metadata update
+  // Dev mock — persist update so overview reflects profile input
   try {
-    const body = (await req.json()) as { metadata?: unknown }
-    return NextResponse.json({
-      address,
-      id: `va:farmer:${address}`,
-      registered: true,
-      createdLedger: 1234567,
+    const body = (await req.json()) as { metadata?: FarmerProfileMetadata }
+    if (!body.metadata?.name?.trim()) {
+      return NextResponse.json({ error: "name is required" }, { status: 400 })
+    }
+    const auth = req.headers.get("authorization")
+    if (!auth) return NextResponse.json({ error: "authorization required" }, { status: 401 })
+    const store = getMockStore()
+    const existing = store.get(address)
+    if (!existing) return NextResponse.json({ error: "farmer not found" }, { status: 404 })
+    const updated = {
+      ...existing,
       updatedLedger: 1234601,
       metadata: {
         hash: "mockhash2",
-        profile: (body.metadata as Record<string, unknown>) ?? { name: address.slice(0, 8) },
+        profile: {
+          name: body.metadata.name.trim(),
+          region: body.metadata.region?.trim() || undefined,
+          district: body.metadata.district?.trim() || undefined,
+          bio: body.metadata.bio?.trim() || undefined,
+          profileImageHash: body.metadata.profileImageHash?.trim() || undefined,
+        },
       },
-      verificationMarkers: [],
-    })
+    }
+    store.set(address, updated)
+    return NextResponse.json(updated)
   } catch {
     return NextResponse.json({ error: "invalid json" }, { status: 400 })
   }

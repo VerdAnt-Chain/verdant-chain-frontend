@@ -176,44 +176,53 @@ export function FarmerProfileClient({ address }: FarmerProfileClientProps) {
 
           <div className={styles.section}>
             <Heading as="h3">Profile</Heading>
-            {farmer.metadata?.profile ? (
-              <div className={styles.metaGrid}>
-                <div className={styles.metaItem}>
-                  <Text as="span" size="label-sm" tone="muted">
-                    Name
-                  </Text>
-                  <Text as="p">{farmer.metadata.profile.name ?? "—"}</Text>
+            {(() => {
+              const p =
+                (farmer.metadata as unknown as { profile?: Record<string, unknown> })?.profile ??
+                farmer.metadata
+              const profile = p as unknown as
+                | { name?: string; region?: string; district?: string; bio?: string }
+                | null
+                | undefined
+              return profile?.name ? (
+                <div className={styles.metaGrid}>
+                  <div className={styles.metaItem}>
+                    <Text as="span" size="label-sm" tone="muted">
+                      Name
+                    </Text>
+                    <Text as="p">{profile.name ?? "—"}</Text>
+                  </div>
+                  {profile.region && (
+                    <div className={styles.metaItem}>
+                      <Text as="span" size="label-sm" tone="muted">
+                        Region
+                      </Text>
+                      <Text as="p">{profile.region}</Text>
+                    </div>
+                  )}
+                  {profile.district && (
+                    <div className={styles.metaItem}>
+                      <Text as="span" size="label-sm" tone="muted">
+                        District
+                      </Text>
+                      <Text as="p">{profile.district}</Text>
+                    </div>
+                  )}
+                  {profile.bio && (
+                    <div className={styles.metaItem} style={{ gridColumn: "1 / -1" }}>
+                      <Text as="span" size="label-sm" tone="muted">
+                        Bio
+                      </Text>
+                      <Text as="p">{profile.bio}</Text>
+                    </div>
+                  )}
                 </div>
-                {farmer.metadata.profile.region && (
-                  <div className={styles.metaItem}>
-                    <Text as="span" size="label-sm" tone="muted">
-                      Region
-                    </Text>
-                    <Text as="p">{farmer.metadata.profile.region}</Text>
-                  </div>
-                )}
-                {farmer.metadata.profile.district && (
-                  <div className={styles.metaItem}>
-                    <Text as="span" size="label-sm" tone="muted">
-                      District
-                    </Text>
-                    <Text as="p">{farmer.metadata.profile.district}</Text>
-                  </div>
-                )}
-                {farmer.metadata.profile.bio && (
-                  <div className={styles.metaItem} style={{ gridColumn: "1 / -1" }}>
-                    <Text as="span" size="label-sm" tone="muted">
-                      Bio
-                    </Text>
-                    <Text as="p">{farmer.metadata.profile.bio}</Text>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <Text as="p" tone="muted">
-                No off-chain profile metadata available.
-              </Text>
-            )}
+              ) : (
+                <Text as="p" tone="muted">
+                  No off-chain profile metadata available.
+                </Text>
+              )
+            })()}
           </div>
 
           {farmer.verificationMarkers && farmer.verificationMarkers.length > 0 && (
