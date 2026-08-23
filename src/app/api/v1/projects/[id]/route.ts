@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server"
+import { proxy } from "../../_demo/db"
 import { demo } from "../../_demo/router"
 
 /* Core workflow API ("projects", params.id) — backend-first with demo fallback. */
@@ -6,6 +7,8 @@ type Ctx = { params: Promise<Record<string, string>> }
 
 async function handle(req: NextRequest, ctx: Ctx) {
   const params = await ctx.params
+  const response = await proxy(req, `projects/${encodeURIComponent(params.id)}`)
+  if (response) return response
   const res = await demo(req, ["projects", params.id])
   return res ?? Response.json({ error: "not found" }, { status: 404 })
 }

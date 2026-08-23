@@ -71,62 +71,27 @@
   animation-delay: calc(5 * var(--va-stagger-step));
 }
 
-/* Splash — expands from the selected result's exact bounds.
-   Sized to the clicked card via inline width/height, centered on it,
-   then scaled up by --splash-scale with a spring so it visibly grows
-   out of the card rather than appearing. */
-.splash {
-  position: fixed;
-  /* Match the standard rounded rectangle used by the result card. */
-  border-radius: var(--va-shape-xl);
-  background: var(--va-brand-800);
+@keyframes va-result-selected {
+  from {
+    background: var(--va-surface-container);
+    border-color: var(--va-outline-variant);
+    color: var(--va-on-surface);
+  }
+  to {
+    background: var(--va-brand-800);
+    border-color: var(--va-brand-800);
+    color: var(--va-on-primary);
+    box-shadow: var(--va-elevation-3);
+  }
+}
+
+.selectedCard {
+  animation: va-result-selected 900ms var(--va-ease-spring-gentle) both !important;
   pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%) scale(1);
-  opacity: 1;
-  will-change: transform, opacity;
-  box-shadow:
-    0 0 0 10px color-mix(in srgb, var(--va-brand-800) 20%, transparent),
-    0 0 40px color-mix(in srgb, var(--va-brand-800) 32%, transparent);
 }
 
-.splashActive {
-  transform: translate(-50%, -50%) scale(var(--splash-scale, 60));
-  /* Deliberate, playful page transition: expand before navigating away. */
-  transition: transform 1600ms var(--va-ease-spring-emphasized);
-}
-
-.splashInner {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(
-    circle at 32% 28%,
-    color-mix(in srgb, var(--va-primary-container) 28%, var(--va-brand-800)) 0%,
-    var(--va-brand-800) 55%,
-    color-mix(in srgb, var(--va-brand-700) 65%, var(--va-brand-800)) 100%
-  );
-}
-
-.splashRipple {
-  position: absolute;
-  inset: -14px;
-  border-radius: inherit;
-  border: 2px solid color-mix(in srgb, var(--va-brand-300) 52%, transparent);
-  opacity: 0;
-  animation: ripple 560ms var(--va-ease-emphasized-decelerate) both;
-  animation-delay: 90ms;
-}
-
-@keyframes ripple {
-  0% {
-    transform: scale(0.6);
-    opacity: 0.6;
-  }
-  100% {
-    transform: scale(1.8);
-    opacity: 0;
-  }
+.selectedCard :global(*) {
+  color: inherit;
 }
 
 .header {

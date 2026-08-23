@@ -3,7 +3,10 @@
 import { useCallback, useEffect, useState } from "react"
 import { Card } from "@/components/ui"
 import { Heading, Text, StatusPill, Button, Spinner } from "@/components/ui"
+import { listEquipment } from "@/lib/api/equipment"
 import { getFarmer, registerFarmer } from "@/lib/api/farmers"
+import { listAnimals } from "@/lib/api/livestock"
+import { listProofs } from "@/lib/api/proofs"
 import { isNotFound } from "@/lib/api/client"
 import { signInWithFreighter } from "@/lib/wallet/auth"
 import {
@@ -33,12 +36,27 @@ interface FarmerProfileClientProps {
   address: string
 }
 
+type IdentityStats = {
+  livestock: number | null
+  equipmentOwned: number | null
+  equipmentListed: number | null
+  proofsOwned: number | null
+}
+
+const emptyIdentityStats: IdentityStats = {
+  livestock: null,
+  equipmentOwned: null,
+  equipmentListed: null,
+  proofsOwned: null,
+}
+
 export function FarmerProfileClient({ address }: FarmerProfileClientProps) {
   const [data, setData] = useState<{
     farmer: Awaited<ReturnType<typeof getFarmer>> | null
     error: Error | null
     loading: boolean
   }>({ farmer: null, error: null, loading: true })
+  const [identityStats, setIdentityStats] = useState<IdentityStats>(emptyIdentityStats)
 
   const walletStatus = useSyncExternalStore(
     subscribeWallet,
@@ -48,10 +66,26 @@ export function FarmerProfileClient({ address }: FarmerProfileClientProps) {
 
   const loadFarmer = useCallback(async () => {
     setData((prev) => ({ ...prev, loading: true, error: null }))
+    setIdentityStats(emptyIdentityStats)
     try {
       const farmer = await getFarmer(address)
       setData({ farmer, error: null, loading: false })
+
+      const [livestock, equipment, proofs] = await Promise.allSettled([
+        listAnimals({ owner: address, pageSize: 100 }),
+        listEquipment({ owner: address, pageSize: 100 }),
+        listProofs({ creator: address, pageSize: 100 }),
+      ])
+
+      const equipmentItems = equipment.status === "fulfilled" ? equipment.value.items : null
+      setIdentityStats({
+        livestock: livestock.status === "fulfilled" ? livestock.value.items.length : null,
+        equipmentOwned: equipmentItems?.length ?? null,
+        equipmentListed: equipmentItems?.filter((item) => item.available).length ?? null,
+        proofsOwned: proofs.status === "fulfilled" ? proofs.value.items.length : null,
+      })
     } catch (error) {
+      setIdentityStats(emptyIdentityStats)
       setData({ farmer: null, error: error as Error, loading: false })
     }
   }, [address])
@@ -170,6 +204,24 @@ export function FarmerProfileClient({ address }: FarmerProfileClientProps) {
                   Updated ledger
                 </Text>
                 <Text as="p">{farmer.updatedLedger?.toLocaleString() ?? "—"}</Text>
+              </div>
+            </div>
+            <div className={styles.infoBubbles} aria-label="Identity-linked farm stats">
+              <div className={styles.infoBubble}>
+                <span>{identityStats.livestock?.toLocaleString() ?? "—"}</span>
+                <small>Livestock</small>
+              </div>
+              <div className={styles.infoBubble}>
+                <span>{identityStats.equipmentOwned?.toLocaleString() ?? "—"}</span>
+                <small>Equipment owned</small>
+              </div>
+              <div className={styles.infoBubble}>
+                <span>{identityStats.equipmentListed?.toLocaleString() ?? "—"}</span>
+                <small>Listed</small>
+              </div>
+              <div className={styles.infoBubble}>
+                <span>{identityStats.proofsOwned?.toLocaleString() ?? "—"}</span>
+                <small>Proofs owned</small>
               </div>
             </div>
           </div>

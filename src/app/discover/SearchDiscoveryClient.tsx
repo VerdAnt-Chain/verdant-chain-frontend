@@ -19,8 +19,6 @@ type FarmerResult = {
   verificationCount: number
 }
 
-type SplashOrigin = { cx: number; cy: number; w: number; h: number; scale: number }
-
 export function SearchDiscoveryClient() {
   const [query, setQuery] = useState("")
   const [submittedQuery, setSubmittedQuery] = useState("")
@@ -28,22 +26,14 @@ export function SearchDiscoveryClient() {
   const [pagination, setPagination] = useState({ page: 1, pageSize: 20, total: 0, totalPages: 0 })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [splash, setSplash] = useState<SplashOrigin | null>(null)
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(null)
   const router = useRouter()
 
-  const handleCardClick = (event: React.MouseEvent, address: string) => {
-    if (splash) return
-    const bounds = event.currentTarget.getBoundingClientRect()
-    const needed = Math.hypot(window.innerWidth, window.innerHeight) * 1.15
-    setSplash({
-      cx: bounds.left + bounds.width / 2,
-      cy: bounds.top + bounds.height / 2,
-      w: bounds.width,
-      h: bounds.height,
-      scale: Math.max(needed / Math.min(bounds.width, bounds.height), 8),
-    })
+  const handleCardClick = (address: string) => {
+    if (selectedAddress) return
+    setSelectedAddress(address)
     playModernClick("select")
-    window.setTimeout(() => router.push(`/farmers/${address}`), 1440)
+    window.setTimeout(() => router.push(`/farmers/${address}`), 950)
   }
 
   const normalized = submittedQuery.trim()
@@ -166,9 +156,9 @@ export function SearchDiscoveryClient() {
                 interactive
                 container
                 elevation={1}
-                className={`${shared.card} ${styles.resultCard}`}
+                className={`${shared.card} ${styles.resultCard} ${selectedAddress === farmer.address ? styles.selectedCard : ""}`}
                 data-sound="none"
-                onClick={(event) => handleCardClick(event, farmer.address)}
+                onClick={() => handleCardClick(farmer.address)}
               >
                 <div className={shared.row} style={{ justifyContent: "space-between" }}>
                   <StatusPill
@@ -214,25 +204,6 @@ export function SearchDiscoveryClient() {
             </div>
           )}
         </>
-      )}
-
-      {splash && (
-        <div
-          className={`${styles.splash} ${styles.splashActive}`}
-          style={
-            {
-              left: splash.cx,
-              top: splash.cy,
-              width: splash.w,
-              height: splash.h,
-              "--splash-scale": splash.scale,
-            } as React.CSSProperties
-          }
-          aria-hidden="true"
-        >
-          <span className={styles.splashInner} />
-          <span className={styles.splashRipple} />
-        </div>
       )}
     </div>
   )

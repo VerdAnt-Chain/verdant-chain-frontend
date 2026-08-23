@@ -28,11 +28,7 @@ export function Timeline({ entries, label }: { entries: TimelineEntry[]; label: 
               {e.meta}
             </Text>
           )}
-          {e.body && (
-            <Text as="p" style={{ marginTop: 4 }}>
-              {e.body}
-            </Text>
-          )}
+          {e.body && <div style={{ marginTop: 4 }}>{e.body}</div>}
         </div>
       ))}
     </div>

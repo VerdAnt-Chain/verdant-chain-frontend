@@ -59,6 +59,39 @@
   gap: var(--va-space-1);
 }
 
+.infoBubbles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--va-space-2);
+  margin-top: var(--va-space-4);
+}
+
+.infoBubble {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--va-space-2);
+  min-height: 2.25rem;
+  padding: var(--va-space-1) var(--va-space-3);
+  border: 1px solid color-mix(in srgb, var(--va-primary) 24%, var(--va-outline-variant));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--va-primary) 9%, var(--va-surface-container));
+  color: var(--va-on-surface);
+}
+
+.infoBubble span {
+  color: var(--va-primary);
+  font-size: var(--va-type-title-md);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.infoBubble small {
+  color: var(--va-on-surface-variant);
+  font-size: var(--va-type-label-sm);
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .markers {
   display: flex;
   flex-wrap: wrap;
