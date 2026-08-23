@@ -131,6 +131,16 @@
   box-shadow: var(--va-elevation-1);
 }
 
+/* Nested links declare their base color later, so give their active state
+   sufficient specificity to keep the highlighted label and icon legible. */
+.item.active,
+.subItem.active {
+  background: var(--va-primary);
+  color: var(--va-on-primary);
+  border-color: transparent;
+  box-shadow: var(--va-elevation-1);
+}
+
 .icon {
   display: inline-flex;
   flex-shrink: 0;

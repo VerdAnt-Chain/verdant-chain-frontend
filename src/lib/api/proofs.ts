@@ -61,3 +61,4 @@ export async function verifyProof(
     input
   )
 }
+export type { ProofListItem, ProofStatus, ProofSubjectType } from "./types"

@@ -2,66 +2,59 @@
 
 /* eslint-disable react-hooks/set-state-in-effect -- search sync intentional */
 import { useCallback, useEffect, useState } from "react"
-import { Card } from "@/components/ui"
-import { Heading, Text, StatusPill, Button, Spinner, Input } from "@/components/ui"
+import { useRouter } from "next/navigation"
+import { Button, Card, Heading, Input, StatusPill, Text } from "@/components/ui"
+import { EmptyState, SkeletonCards } from "@/components/core/primitives"
 import { searchFarmers } from "@/lib/api/farmers"
 import { shortAddress } from "@/lib/api/address"
 import { playModernClick } from "@/lib/ui/sound"
-import { useRouter } from "next/navigation"
-import { Grid } from "@/components/ui"
+import shared from "@/components/core/shared.module.css"
 import styles from "./search-discovery.module.css"
+
+type FarmerResult = {
+  address: string
+  name: string
+  region?: string
+  district?: string
+  verificationCount: number
+}
+
+type SplashOrigin = { cx: number; cy: number; w: number; h: number; scale: number }
 
 export function SearchDiscoveryClient() {
   const [query, setQuery] = useState("")
   const [submittedQuery, setSubmittedQuery] = useState("")
-  const [results, setResults] = useState<
-    {
-      address: string
-      name: string
-      region?: string
-      district?: string
-      verificationCount: number
-    }[]
-  >([])
-
-  const [pagination, setPagination] = useState({
-    page: 1,
-    pageSize: 20,
-    total: 0,
-    totalPages: 0,
-  })
+  const [results, setResults] = useState<FarmerResult[]>([])
+  const [pagination, setPagination] = useState({ page: 1, pageSize: 20, total: 0, totalPages: 0 })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  type SplashOrigin = { cx: number; cy: number; w: number; h: number; scale: number }
   const [splash, setSplash] = useState<SplashOrigin | null>(null)
   const router = useRouter()
 
-  const handleCardClick = (e: React.MouseEvent, address: string) => {
+  const handleCardClick = (event: React.MouseEvent, address: string) => {
     if (splash) return
-    // Splash expands from the selected result itself — match the card's bounds
-    const el = e.currentTarget as HTMLElement
-    const r = el.getBoundingClientRect()
-    const cx = r.left + r.width / 2
-    const cy = r.top + r.height / 2
+    const bounds = event.currentTarget.getBoundingClientRect()
     const needed = Math.hypot(window.innerWidth, window.innerHeight) * 1.15
-    const scale = Math.max(needed / Math.min(r.width, r.height), 8)
-    setSplash({ cx, cy, w: r.width, h: r.height, scale })
+    setSplash({
+      cx: bounds.left + bounds.width / 2,
+      cy: bounds.top + bounds.height / 2,
+      w: bounds.width,
+      h: bounds.height,
+      scale: Math.max(needed / Math.min(bounds.width, bounds.height), 8),
+    })
     playModernClick("select")
-    window.setTimeout(() => {
-      router.push("/farmers/" + address)
-    }, 420)
+    window.setTimeout(() => router.push(`/farmers/${address}`), 1440)
   }
 
   const normalized = submittedQuery.trim()
-
   const runSearch = useCallback(
     (page: number, pageSize: number) => {
       if (!normalized) return
       setLoading(true)
       searchFarmers({ q: normalized, page, pageSize })
-        .then((resp) => {
+        .then((response) => {
           setResults(
-            resp.items.map((item) => ({
+            response.items.map((item) => ({
               address: item.address,
               name: item.name,
               region: item.region,
@@ -69,23 +62,13 @@ export function SearchDiscoveryClient() {
               verificationCount: item.verificationCount,
             }))
           )
-          setPagination({
-            page: resp.pagination.page,
-            pageSize: resp.pagination.pageSize,
-            total: resp.pagination.total,
-            totalPages: resp.pagination.totalPages,
-          })
+          setPagination(response.pagination)
           setError(null)
         })
-        .catch((e) => {
-          setError(e instanceof Error ? e.message : "Could not reach the VerdAnt API")
+        .catch((reason) => {
+          setError(reason instanceof Error ? reason.message : "Could not reach the VerdAnt API")
           setResults([])
-          setPagination({
-            page: 1,
-            pageSize: 20,
-            total: 0,
-            totalPages: 0,
-          })
+          setPagination({ page: 1, pageSize: 20, total: 0, totalPages: 0 })
         })
         .finally(() => setLoading(false))
     },
@@ -102,132 +85,125 @@ export function SearchDiscoveryClient() {
     runSearch(1, 20)
   }, [normalized, runSearch])
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    const q = query.trim()
-    if (!q) return
-    setSubmittedQuery(q)
-  }
-
-  const handlePageChange = (page: number) => {
-    if (!normalized) return
-    runSearch(page, pagination.pageSize)
+  const handleSearch = (event: React.FormEvent) => {
+    event.preventDefault()
+    const value = query.trim()
+    if (value) setSubmittedQuery(value)
   }
 
   return (
-    <div className={styles.container}>
-      <Heading as="h2">AgriScout Discovery</Heading>
-      <Text as="p" tone="muted" className={styles.subtitle}>
-        Substring search on farmer name, region, or district. Use the form below.
-      </Text>
+    <div className={shared.page}>
+      <header className={shared.header}>
+        <div className={shared.titleRow}>
+          <StatusPill tone="info" label="AgriScout" />
+          <Heading as="h1">Discover farmers</Heading>
+        </div>
+        <Text as="p" size="body-lg" className={shared.lede}>
+          Find verified farmers and agricultural partners by name, region, or district.
+        </Text>
+        <div className={shared.actions}>
+          <Button as="a" href="/profile">
+            Create your farmer profile
+          </Button>
+        </div>
+      </header>
 
-      <form onSubmit={handleSearch} className={styles.form}>
+      <form onSubmit={handleSearch} className={styles.searchForm}>
         <Input
-          label="Search farmers"
+          label="Search the farmer directory"
           placeholder="Name, region, or district..."
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(event) => setQuery(event.target.value)}
         />
         <Button type="submit" loading={loading}>
           Search
         </Button>
       </form>
 
-      {error && (
-        <Card elevation={1} className={styles.errorCard}>
+      {loading && <SkeletonCards count={3} />}
+
+      {!loading && error && (
+        <Card elevation={1} className={`${shared.detailCard} ${shared.alertError}`}>
           <StatusPill tone="error" label="Error" />
-          <Text as="p" tone="error">
+          <Text tone="error" as="p" style={{ marginTop: 8 }}>
             {error}
           </Text>
+          <div className={shared.actions}>
+            <Button variant="outlined" onClick={() => runSearch(pagination.page, pagination.pageSize)}>
+              Retry
+            </Button>
+          </div>
         </Card>
       )}
 
-      {loading && <Spinner size="md" label="Searching farmers…" className={styles.spinner} />}
+      {!loading && !error && !normalized && (
+        <EmptyState
+          title="Discover your agricultural network"
+          message="Search by a farmer’s name, region, or district to explore registered profiles and verification history."
+        />
+      )}
 
-      {results.length > 0 && (
+      {!loading && !error && normalized && results.length === 0 && (
+        <EmptyState
+          message={`No farmers matched “${normalized}”. Try a different name, region, or district.`}
+          actionLabel="Clear search"
+          onAction={() => {
+            setQuery("")
+            setSubmittedQuery("")
+          }}
+        />
+      )}
+
+      {!loading && !error && results.length > 0 && (
         <>
-          <div className={styles.resultsGrid}>
+          <div className={shared.grid}>
             {results.map((farmer) => (
               <Card
                 key={farmer.address}
+                interactive
+                container
                 elevation={1}
-                className={styles.resultCard}
+                className={`${shared.card} ${styles.resultCard}`}
                 data-sound="none"
-                onClick={(e) => handleCardClick(e, farmer.address)}
+                onClick={(event) => handleCardClick(event, farmer.address)}
               >
-                <div className={styles.header}>
+                <div className={shared.row} style={{ justifyContent: "space-between" }}>
                   <StatusPill
                     tone={farmer.verificationCount > 0 ? "success" : "info"}
-                    label={`Verified (${farmer.verificationCount})`}
+                    label={`${farmer.verificationCount} verified`}
                   />
-                  <span className={styles.farmerId} title={farmer.address}>
+                  <span className={shared.mono} title={farmer.address}>
                     {shortAddress(farmer.address)}
                   </span>
                 </div>
-                <div className={styles.meta}>
-                  <p>
-                    <strong>Name:</strong> {farmer.name}
-                  </p>
-                  {farmer.region && (
-                    <p>
-                      <strong>Region:</strong> {farmer.region}
-                    </p>
-                  )}
-                  {farmer.district && (
-                    <p>
-                      <strong>District:</strong> {farmer.district}
-                    </p>
-                  )}
-                </div>
+                <Heading as="h3" style={{ marginTop: 10 }}>
+                  {farmer.name}
+                </Heading>
+                <Text tone="muted" as="p" style={{ marginTop: 4 }}>
+                  {[farmer.region, farmer.district].filter(Boolean).join(" · ") || "Location not listed"}
+                </Text>
               </Card>
             ))}
           </div>
 
-          {splash && (
-            <div
-              className={`${styles.splash} ${styles.splashActive}`}
-              style={
-                {
-                  left: splash.cx,
-                  top: splash.cy,
-                  width: splash.w,
-                  height: splash.h,
-                  "--splash-scale": splash.scale,
-                } as React.CSSProperties
-              }
-              aria-hidden="true"
-            >
-              <span className={styles.splashInner} />
-              <span className={styles.splashRipple} />
-            </div>
-          )}
-
           {pagination.totalPages > 1 && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                marginTop: 16,
-                justifyContent: "center",
-              }}
-            >
+            <div className={shared.actions} style={{ justifyContent: "center" }}>
               <Button
                 variant="outlined"
                 size="sm"
-                disabled={pagination.page <= 1 || loading}
-                onClick={() => handlePageChange(pagination.page - 1)}
+                disabled={pagination.page <= 1}
+                onClick={() => runSearch(pagination.page - 1, pagination.pageSize)}
               >
                 Previous
               </Button>
               <Text size="body-sm" tone="muted">
-                Page {pagination.page} of {pagination.totalPages} — {pagination.total} farmers
+                Page {pagination.page} of {pagination.totalPages} · {pagination.total} farmers
               </Text>
               <Button
                 variant="outlined"
                 size="sm"
-                disabled={pagination.page >= pagination.totalPages || loading}
-                onClick={() => handlePageChange(pagination.page + 1)}
+                disabled={pagination.page >= pagination.totalPages}
+                onClick={() => runSearch(pagination.page + 1, pagination.pageSize)}
               >
                 Next
               </Button>
@@ -236,46 +212,24 @@ export function SearchDiscoveryClient() {
         </>
       )}
 
-      {results.length === 0 && normalized && !loading && !error && (
-        <Card elevation={1} className={styles.emptyState}>
-          <StatusPill tone="info" label="No farmers found" />
-          <Text>
-            No farmers matched <code>{normalized}</code> — try adjusting your search terms.
-          </Text>
-        </Card>
+      {splash && (
+        <div
+          className={`${styles.splash} ${styles.splashActive}`}
+          style={
+            {
+              left: splash.cx,
+              top: splash.cy,
+              width: splash.w,
+              height: splash.h,
+              "--splash-scale": splash.scale,
+            } as React.CSSProperties
+          }
+          aria-hidden="true"
+        >
+          <span className={styles.splashInner} />
+          <span className={styles.splashRipple} />
+        </div>
       )}
-
-      {!normalized && (
-        <Card elevation={1} className={styles.emptyState}>
-          <StatusPill tone="info" label="Enter a search term" />
-          <Text>Enter a name, region, or district to search the farmer directory.</Text>
-        </Card>
-      )}
-
-      <section className={styles.future} aria-labelledby="future-heading">
-        <Heading as="h3" id="future-heading">
-          Directory & reputation
-        </Heading>
-        <Grid cols={3} gap={4} responsive className={styles.futureGrid}>
-          <Card elevation={1} container>
-            <Heading as="h4">Verified farmers</Heading>
-            <Text tone="muted">Directory of farmers with on-chain verification markers.</Text>
-          </Card>
-          <Card elevation={1} container>
-            <Heading as="h4">Reputation scores</Heading>
-            <Text tone="muted">Aggregated scores from verification history and activity.</Text>
-          </Card>
-          <Card elevation={1} container>
-            <Heading as="h4">Opportunity matching</Heading>
-            <Text tone="muted">Connect farmers with buyers, equipment, and financing.</Text>
-          </Card>
-        </Grid>
-        <Text tone="muted" className={styles.note}>
-          Search the directory above for registered farmers. Reputation and verified history
-          surfaces will be available in a future Phase 4b increment after the verification contract
-          documented in /docs/architecture/integration.md is implemented and indexed.
-        </Text>
-      </section>
     </div>
   )
 }

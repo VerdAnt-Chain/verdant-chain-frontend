@@ -1,0 +1,260 @@
+/* Shared M3-expressive styles for core workflow surfaces (proofs/equipment/projects/livestock). */
+
+.page {
+  max-width: var(--va-container-lg);
+  margin: 0 auto;
+  padding: var(--va-space-6);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--va-space-3);
+  padding: var(--va-space-6) 0 var(--va-space-5);
+  animation: va-spring-enter-subtle var(--va-motion-expressive-default)
+    var(--va-ease-spring-emphasized) both;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--va-space-3);
+  flex-wrap: wrap;
+}
+
+.lede {
+  max-width: 46rem;
+  color: var(--va-on-surface-variant);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--va-space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--va-space-4);
+}
+
+.grid {
+  display: grid;
+  gap: var(--va-space-4);
+  grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+}
+
+.card {
+  animation: va-bloom var(--va-motion-spring-bouncy) var(--va-ease-spring-bouncy) both;
+}
+
+.card:nth-child(2) {
+  animation-delay: calc(1 * var(--va-stagger-step));
+}
+.card:nth-child(3) {
+  animation-delay: calc(2 * var(--va-stagger-step));
+}
+.card:nth-child(4) {
+  animation-delay: calc(3 * var(--va-stagger-step));
+}
+.card:nth-child(5) {
+  animation-delay: calc(4 * var(--va-stagger-step));
+}
+.card:nth-child(6) {
+  animation-delay: calc(5 * var(--va-stagger-step));
+}
+
+.detailCard {
+  padding: var(--va-space-6);
+  margin-bottom: var(--va-space-4);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--va-space-3);
+  flex-wrap: wrap;
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--va-space-4);
+  margin-top: var(--va-space-4);
+}
+
+.metaItem span:first-child {
+  display: block;
+  font-size: var(--va-type-label-sm);
+  letter-spacing: var(--va-ls-label-wide);
+  text-transform: uppercase;
+  color: var(--va-on-surface-variant);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.mono {
+  font-family: var(--va-font-mono);
+  font-size: var(--va-type-body-sm);
+  word-break: break-all;
+}
+
+.section {
+  margin-top: var(--va-space-5);
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--va-space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--va-space-3);
+}
+
+.formGrid {
+  display: grid;
+  gap: var(--va-space-3);
+  margin-top: var(--va-space-3);
+}
+
+.formRow2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--va-space-3);
+}
+
+.actions {
+  display: flex;
+  gap: var(--va-space-2);
+  flex-wrap: wrap;
+  margin-top: var(--va-space-3);
+}
+
+.alertError {
+  border-color: var(--va-error);
+}
+
+.alertSuccess {
+  border-color: var(--va-success);
+}
+
+.chips {
+  display: flex;
+  gap: var(--va-space-2);
+  flex-wrap: wrap;
+}
+
+.chip {
+  border: 1px solid var(--va-outline-variant);
+  background: var(--va-surface-container);
+  color: var(--va-on-surface-variant);
+  border-radius: var(--va-shape-full);
+  padding: 6px 14px;
+  font-size: var(--va-type-label-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background var(--va-motion-150) var(--va-ease-standard),
+    color var(--va-motion-150) var(--va-ease-standard),
+    transform var(--va-motion-spring-fast) var(--va-ease-spring-snappy);
+}
+
+.chip:hover {
+  transform: translateY(-1px);
+  color: var(--va-on-surface);
+}
+
+.chipActive {
+  background: var(--va-primary);
+  color: var(--va-on-primary);
+  border-color: transparent;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 8px;
+  background: var(--va-surface-container-highest);
+  border-radius: var(--va-shape-full);
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--va-primary), var(--va-accent-leaf));
+  border-radius: var(--va-shape-full);
+  transition: width var(--va-motion-expressive-default) var(--va-ease-spring-gentle);
+}
+
+.timeline {
+  position: relative;
+  padding-left: var(--va-space-5);
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: var(--va-outline-variant);
+  border-radius: var(--va-shape-full);
+}
+
+.timelineItem {
+  position: relative;
+  padding: var(--va-space-3) 0;
+}
+
+.timelineDot {
+  position: absolute;
+  left: calc(-1 * var(--va-space-5) + 2px);
+  top: calc(var(--va-space-3) + 6px);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--va-primary);
+  box-shadow: 0 0 0 4px var(--va-primary-container);
+}
+
+.timelineMuted .timelineDot {
+  background: var(--va-outline);
+  box-shadow: 0 0 0 4px var(--va-surface-container-high);
+}
+
+.skeletonCard {
+  padding: var(--va-space-6);
+  border-radius: var(--va-shape-xl);
+  background: linear-gradient(
+    100deg,
+    var(--va-surface-container) 40%,
+    var(--va-surface-container-high) 50%,
+    var(--va-surface-container) 60%
+  );
+  background-size: 200% 100%;
+  animation: va-shimmer 1400ms linear infinite;
+  min-height: 9rem;
+}
+
+@media (max-width: 620px) {
+  .formRow2 {
+    grid-template-columns: 1fr;
+  }
+
+  .page {
+    padding: var(--va-space-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .card,
+  .progressBar {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .skeletonCard {
+    animation: none !important;
+  }
+}

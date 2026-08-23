@@ -1,18 +1,8 @@
-.container {
-  max-width: 48rem;
-  margin: 0 auto;
-  padding: var(--va-space-6);
-}
-
-.subtitle {
-  margin-top: var(--va-space-2);
-  margin-bottom: var(--va-space-6);
-}
-
-.form {
+.searchForm {
   display: flex;
   gap: var(--va-space-3);
   margin-bottom: var(--va-space-6);
+  align-items: end;
 }
 
 .spinner {
@@ -29,36 +19,35 @@
   animation: va-spring-enter-subtle var(--va-motion-300) var(--va-ease-spring-gentle) both;
 }
 
-.resultsGrid {
-  display: grid;
-  gap: var(--va-space-4);
-  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
-}
-
 @keyframes va-bloom {
   0% {
     opacity: 0;
     transform: scale(0.55) translateY(18px);
-    border-radius: var(--va-shape-full);
+    border-radius: var(--va-shape-xl);
     filter: blur(2px);
   }
   55% {
     opacity: 1;
     transform: scale(1.06) translateY(-4px);
+    border-radius: var(--va-shape-xl);
     filter: blur(0);
   }
   75% {
     transform: scale(0.98) translateY(1px);
+    border-radius: var(--va-shape-xl);
   }
   100% {
     opacity: 1;
     transform: scale(1) translateY(0);
+    border-radius: var(--va-shape-xl);
     filter: blur(0);
   }
 }
 
 .resultCard {
   animation: va-bloom var(--va-motion-spring-bouncy) var(--va-ease-spring-bouncy) both;
+  /* Keep every bloom frame on the standard rounded-card shape. */
+  border-radius: var(--va-shape-xl) !important;
   will-change: transform, opacity;
   transform-origin: center center;
 }
@@ -88,25 +77,23 @@
    out of the card rather than appearing. */
 .splash {
   position: fixed;
+  /* Match the standard rounded rectangle used by the result card. */
   border-radius: var(--va-shape-xl);
-  background: var(--va-primary);
+  background: var(--va-brand-800);
   pointer-events: none;
   z-index: 9999;
   transform: translate(-50%, -50%) scale(1);
   opacity: 1;
   will-change: transform, opacity;
   box-shadow:
-    0 0 0 10px color-mix(in srgb, var(--va-primary) 20%, transparent),
-    0 0 40px color-mix(in srgb, var(--va-primary) 30%, transparent);
+    0 0 0 10px color-mix(in srgb, var(--va-brand-800) 20%, transparent),
+    0 0 40px color-mix(in srgb, var(--va-brand-800) 32%, transparent);
 }
 
 .splashActive {
   transform: translate(-50%, -50%) scale(var(--splash-scale, 60));
-  transition:
-    transform 620ms var(--va-ease-spring-bouncy),
-    border-radius 620ms var(--va-ease-spring-bouncy);
-  /* As it scales, the radius eases toward a circle */
-  border-radius: var(--va-shape-full);
+  /* Deliberate, playful page transition: expand before navigating away. */
+  transition: transform 1600ms var(--va-ease-spring-emphasized);
 }
 
 .splashInner {
@@ -115,9 +102,9 @@
   border-radius: inherit;
   background: radial-gradient(
     circle at 32% 28%,
-    color-mix(in srgb, var(--va-primary-container) 70%, var(--va-primary)) 0%,
-    var(--va-primary) 55%,
-    color-mix(in srgb, var(--va-accent-leaf) 30%, var(--va-primary)) 100%
+    color-mix(in srgb, var(--va-primary-container) 28%, var(--va-brand-800)) 0%,
+    var(--va-brand-800) 55%,
+    color-mix(in srgb, var(--va-brand-700) 65%, var(--va-brand-800)) 100%
   );
 }
 
@@ -125,7 +112,7 @@
   position: absolute;
   inset: -14px;
   border-radius: inherit;
-  border: 2px solid color-mix(in srgb, var(--va-primary-container) 60%, transparent);
+  border: 2px solid color-mix(in srgb, var(--va-brand-300) 52%, transparent);
   opacity: 0;
   animation: ripple 560ms var(--va-ease-emphasized-decelerate) both;
   animation-delay: 90ms;

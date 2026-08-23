@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getMockStore } from "../_mockStore"
+import { demo } from "../../_demo/router"
 import type { FarmerProfileMetadata } from "@/lib/api/types"
 
 export async function POST(req: NextRequest) {

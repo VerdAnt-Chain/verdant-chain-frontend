@@ -6,10 +6,10 @@ import { AuthButton, ThemeToggle } from "@/components/ui"
 import styles from "./site-header.module.css"
 
 const navLinks = [
-  { href: "/discover", label: "AgriScout" },
-  { href: "/verify", label: "Verification" },
+  { href: "/discover", label: "Discover" },
+  { href: "/proofs", label: "Verification" },
   { href: "/equipment", label: "Equipment" },
-  { href: "/financing", label: "Financing" },
+  { href: "/projects", label: "Financing" },
   { href: "/livestock", label: "Livestock" },
 ]
 
