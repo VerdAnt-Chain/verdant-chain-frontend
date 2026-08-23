@@ -3,37 +3,37 @@ import { FeatureLanding } from "@/components/feature-landing/feature-landing"
 export default function EquipmentPage() {
   return (
     <FeatureLanding
-      title="AgriLease — Equipment"
-      description="Equipment marketplace with programmable escrow — farmer books tractor/harvester, funds held on-chain until return, settled via SEP-41 TokenClient (XLM/USDC). Contract of record docs/contracts/escrow.md v1.0 — 14 tests, 7 entrypoints, ReleaseCondition {Manual, Milestone, Timeout}."
+      title="Equipment"
+      description="Discover and book tractors, harvesters, and irrigation systems — availability tracked on-chain with escrowed bookings."
       headerTone="info"
-      headerLabel="AgriLease · docs/contracts/escrow.md"
+      headerLabel="AgriLease"
       items={[
         {
-          name: "6R Tractor · Escrow 000000000007 created",
-          meta: "create_escrow(depositor: farmer, beneficiary: owner, amount: 2_500_000 stroops, release_condition: Manual{releaser}, booking_ref: va:booking:<uuidv7>) — depositor.require_auth(), token.transfer_from. Squircle — friendly hold.",
+          name: "John Deere 6R Tractor",
+          meta: "Available for booking in the Northern region.",
           tone: "success",
-          label: "va:escrow:000000000007",
+          label: "Available",
         },
         {
-          name: "Harvester · Milestone release pending",
-          meta: "ReleaseCondition::Milestone{proof_verifier} — release(escrow_id, releaser, proof_hash) requires releaser.require_auth() + stored releaser match; proof_hash is sha256(delivery-note.pdf) (AD-004). Leaf flip — organic check.",
+          name: "Claas Harvester",
+          meta: "Reserved with an escrowed booking deposit.",
           tone: "pending",
-          label: "release: proof_hash sha256",
+          label: "Booked",
         },
         {
-          name: "Irrigation pivot · Timeout refund eligible",
-          meta: "ReleaseCondition::Timeout{timeout_ledger} + EscrowRefunded — refund(escrow_id, depositor) after ledger, token.transfer back. Field shape — terrace hold.",
+          name: "Irrigation pivot",
+          meta: "In service; utilization reported per season.",
           tone: "info",
-          label: "TimeoutNotElapsed vs Refunded",
+          label: "In service",
         },
         {
-          name: "Excavator · In maintenance — no escrow",
-          meta: "Escrow state: Escrow {id, depositor, beneficiary, token, amount, released_amount, booking_ref, condition, ledgers}. Errors: NotInitialized, Unauthorized, EscrowNotFound, InsufficientBalance, ConditionNotMet. Expressive flip — shelter.",
+          name: "Kubota excavator",
+          meta: "Undergoing maintenance before re-listing.",
           tone: "neutral",
-          label: "Escrow(u64) empty",
+          label: "Maintenance",
         },
       ]}
-      note="On-chain: Admin, Token (XLM/USDC), NextEscrowId, Escrow(u64), BookingEscrows(Bytes). Off-chain: indexer builds AgriLease booking state from EscrowCreated/Deposited/Released/Refunded. Reads require no auth; deposits/releases require depositor/releaser auth."
+      note="The equipment booking flow lands after the AgriLease escrow contract is designed and accepted."
     />
   )
 }
