@@ -7,7 +7,7 @@ VerdAnt is a full-stack ecosystem that anchors farm identity, verification, equi
 This repository delivers:
 
 - **Four working product cores** — AgroProof (proofs), AgriLease (equipment + leases), FarmFund (projects + milestones), LivestockPass (animals + provenance) — each with explorer, detail, create, and mutation journeys backed by typed API clients
-- **AgriScout** discovery + farmer profiles against the Farmer API
+- **Discover / AgriScout** farmer search + farmer profiles against the Farmer API, including identity-linked stats for livestock, equipment, and proofs
 - **SEP-40 Freighter wallet authentication** with persistent bearer sessions
 - A **Material 3 Expressive design system** ('digital greenhouse' identity: botanical tonal palette, organic shapes, spring physics, living-system hero)
 
@@ -52,7 +52,7 @@ npm run dev:https
 open https://localhost:3000
 ```
 
-The dev server proxies `/api/v1/*` to the backend (`VERDANT_BACKEND_URL`, default `http://localhost:8080`). Farmer and auth endpoints are live against the real backend; the four newer cores (proofs/equipment/projects/livestock) fall back to an in-memory demo store until their backend endpoints ship, so every workflow is explorable out of the box.
+The dev server proxies `/api/v1/*` to the backend (`VERDANT_BACKEND_URL`, default `http://localhost:8080`). Farmer and auth endpoints are live against the real backend; proofs, equipment, projects, and livestock use backend-first route handlers with an in-memory demo fallback when an upstream endpoint is missing, so every workflow remains explorable out of the box.
 
 ## Scripts
 
@@ -77,13 +77,13 @@ The dev server proxies `/api/v1/*` to the backend (`VERDANT_BACKEND_URL`, defaul
 ┌──────────────────────────────────────────────────────────────┐
 │  Next.js App Router (src/app/)                                │
 │   page.tsx            → home / hero + pillar cards            │
-│   discover/           → AgriScout search grid (API)           │
-│   farmers/[address]/  → farmer profile (API)                  │
+│   discover/           → Discover / AgriScout search grid      │
+│   farmers/[address]/  → farmer profile + identity stats       │
 │   proofs/ (+create,[id])  → AgroProof explorer & workflow     │
 │   equipment/ (+new,[id])  → AgriLease marketplace & leases    │
 │   projects/ (+create,[id])→ FarmFund funding & milestones     │
 │   livestock/ (+register,[id]) → LivestockPass provenance      │
-│   verify|financing    → feature landing pages                 │
+│   verify|financing    → legacy/static feature landing pages   │
 │   account|profile|settings → account shell (sidebar)          │
 │   api/v1/**           → dev proxy/demo data layer             │
 │   design-system/      → token + primitive showcase            │
@@ -127,7 +127,7 @@ The dev server proxies `/api/v1/*` to the backend (`VERDANT_BACKEND_URL`, defaul
 Floating translucent pill (backdrop-blur) with:
 
 - **Logo**: "V" wordmark + "VerdAnt" brand
-- **Primary nav**: AgriScout · Verification · Equipment · Financing · Livestock · Design system
+- **Primary nav**: Discover · Verification · Equipment · Financing · Livestock · Design system
 - **Actions**: Theme toggle (light/dark), wallet/auth button
 
 ### Sidebar
@@ -148,7 +148,7 @@ Collapsible floating card sidebar with two groups:
 
 On mobile (<900px) the sidebar becomes a floating bottom pill bar.
 
-Sidebar state persisted to `localStorage` (`verdant.sidebar.collapsed`, `verdant.sidebar.exploreOpen`, `verdant.sidebar.accountOpen`).
+The sidebar starts collapsed on page load. Explore and Account group-open preferences are persisted to `localStorage` (`verdant.sidebar.exploreOpen`, `verdant.sidebar.accountOpen`).
 
 ### Home Page (`/`)
 
@@ -180,17 +180,17 @@ The landing page features:
 
 ### Discovery & account
 
-| Route                | Purpose                                                               | Data Source                    |
-| -------------------- | --------------------------------------------------------------------- | ------------------------------ |
-| `/`                  | Home: hero + LivingSystem animation, metrics strip, five pillar cards | static                         |
-| `/discover`          | **AgriScout** discovery: search form, results grid, pagination        | `GET /api/v1/farmers` (AD-010) |
-| `/farmers/[address]` | **AgriScout** farmer profile: metadata + verification markers         | `GET /api/v1/farmers/:address` |
-| `/verify`            | **AgroProof** feature landing ("What is AgroProof?")                  | static demo data               |
-| `/financing`         | **FarmFund** feature landing ("What is FarmFund?")                    | static demo data               |
-| `/account`           | Account Overview: biodata card, verifications/profile/ledger stats    | `GET /api/v1/farmers/:address` |
-| `/profile`           | Profile: farmer create/edit form (SEP-40 gated)                       | register / metadata endpoints  |
-| `/settings`          | Settings: appearance, wallet, transaction password, danger zone       | local state                    |
-| `/design-system`     | Design-system showcase: tokens + primitives                           | static                         |
+| Route                | Purpose                                                                                                                     | Data Source                                         |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `/`                  | Home: hero + LivingSystem animation, metrics strip, five pillar cards                                                       | static                                              |
+| `/discover`          | **Discover / AgriScout** search: form, results grid, pagination                                                             | `GET /api/v1/farmers` (AD-010)                      |
+| `/farmers/[address]` | **AgriScout** farmer profile: metadata, verification markers, on-chain identity stat bubbles for livestock/equipment/proofs | `GET /api/v1/farmers/:address` + related core lists |
+| `/verify`            | Legacy/static AgroProof feature landing                                                                                     | static demo data                                    |
+| `/financing`         | Legacy/static FarmFund feature landing                                                                                      | static demo data                                    |
+| `/account`           | Account Overview: biodata card, verifications/profile/ledger stats                                                          | `GET /api/v1/farmers/:address`                      |
+| `/profile`           | Profile: farmer create/edit form (SEP-40 gated)                                                                             | register / metadata endpoints                       |
+| `/settings`          | Settings: appearance, wallet, transaction password, danger zone                                                             | local state                                         |
+| `/design-system`     | Design-system showcase: tokens + primitives                                                                                 | static                                              |
 
 ### Data layer for the cores
 
@@ -297,8 +297,8 @@ src/
 │   ├── page.tsx            #   home / hero + LivingSystem + pillar cards
 │   ├── layout.tsx          #   root layout + providers + ClickSounds
 │   ├── design-system/      #   design-system showcase
-│   ├── discover/           #   AgriScout search (SearchDiscoveryClient)
-│   ├── farmers/[address]/  #   farmer profile (FarmerProfileClient)
+│   ├── discover/           #   Discover / AgriScout search (SearchDiscoveryClient)
+│   ├── farmers/[address]/  #   farmer profile + identity stats
 │   ├── proofs/             #   AgroProof: explorer + create + [id] workflow
 │   ├── equipment/          #   AgriLease: marketplace + new + [id] leases
 │   ├── projects/           #   FarmFund: explorer + create + [id] funding

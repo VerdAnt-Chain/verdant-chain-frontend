@@ -11,7 +11,7 @@ test.describe("site navigation", () => {
 
     // Nav links are inside the Primary navigation landmark
     await expect(page.getByRole("navigation", { name: "Primary" }))
-      .getByRole("link", { name: "AgriScout" })
+      .getByRole("link", { name: "Discover" })
       .toBeVisible()
 
     for (const label of ["Verification", "Equipment", "Financing", "Livestock", "Design system"]) {
@@ -28,13 +28,13 @@ test.describe("site navigation", () => {
     await expect(main.getByRole("link", { name: /LivestockPass/ })).toBeVisible()
   })
 
-  test("navigates from header to AgriScout discovery", async ({ page }) => {
+  test("navigates from header to discovery", async ({ page }) => {
     await page
       .getByRole("navigation", { name: "Primary" })
-      .getByRole("link", { name: "AgriScout" })
+      .getByRole("link", { name: "Discover" })
       .click()
     await expect(page).toHaveURL(/\/discover$/)
-    await expect(page.getByRole("heading", { name: "AgriScout Discovery" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Discover farmers" })).toBeVisible()
   })
 
   test("pillar card links to its feature landing", async ({ page }) => {
