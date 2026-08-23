@@ -17,7 +17,14 @@
   flex-direction: column;
   align-items: flex-start;
   gap: var(--va-space-4);
-  padding: var(--va-space-8) 0 var(--va-space-8);
+  padding: var(--va-space-8) var(--va-space-6);
+  margin: 0 calc(-1 * var(--va-space-6));
+  background: var(--va-surface-container);
+  border: 1px solid var(--va-outline-variant);
+  /* M3 Expressive: large organic header shape */
+  border-radius: var(--va-shape-expressive);
+  animation: va-spring-enter-subtle var(--va-motion-expressive-default)
+    var(--va-ease-spring-emphasized) both;
 }
 
 .header > p {
@@ -30,16 +37,56 @@
   align-items: flex-start;
   gap: var(--va-space-2);
   padding: var(--va-space-6);
+  /* Base expressive radius, overridden per index for organic variety */
+  border-radius: var(--va-shape-xl);
+  animation: va-spring-enter var(--va-motion-spring-default) var(--va-ease-spring-standard) both;
+  will-change: transform, box-shadow;
+}
+
+/* Expressive shape variety — each item gets a distinct organic silhouette */
+.item:nth-child(1) {
+  border-radius: var(--va-shape-leaf);
+  animation-delay: 0ms;
+}
+.item:nth-child(2) {
+  border-radius: var(--va-shape-squircle-lg);
+  animation-delay: calc(1 * var(--va-stagger-step));
+}
+.item:nth-child(3) {
+  border-radius: var(--va-shape-field);
+  animation-delay: calc(2 * var(--va-stagger-step));
+}
+.item:nth-child(4) {
+  border-radius: var(--va-shape-arch);
+  animation-delay: calc(3 * var(--va-stagger-step));
+}
+.item:nth-child(5) {
+  border-radius: var(--va-shape-leaf-flip);
+  animation-delay: calc(4 * var(--va-stagger-step));
+}
+.item:nth-child(6) {
+  border-radius: var(--va-shape-expressive-flip);
+  animation-delay: calc(5 * var(--va-stagger-step));
 }
 
 .footer {
   margin-top: var(--va-space-12);
   padding-top: var(--va-space-8);
   border-top: 1px solid var(--va-outline-variant);
+  animation: va-spring-enter-subtle var(--va-motion-500) var(--va-ease-spring-gentle) both;
+  animation-delay: calc(6 * var(--va-stagger-step));
 }
 
 .homeLink {
   color: var(--va-primary);
   font-size: var(--va-type-label-md);
   font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .item,
+  .footer {
+    animation: none !important;
+  }
 }

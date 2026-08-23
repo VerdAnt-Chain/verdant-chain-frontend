@@ -1,6 +1,7 @@
 /*
  * VerdAnt design tokens — shape / corner radius.
  * M3 Expressive shapes with purposeful, agricultural-infrastructure character.
+ * Large, organic, slightly asymmetric radii evoke fields, seeds and leaves.
  */
 
 :root {
@@ -12,4 +13,22 @@
   --va-shape-xl: 1.75rem;
   --va-shape-2xl: 2.25rem;
   --va-shape-full: 9999px;
+
+  /* M3 Expressive — organic variants for feature surfaces */
+  /* Leaf: soft asymmetric, evokes foliage/crop */
+  --va-shape-leaf: 1rem 2.25rem 1rem 0.5rem;
+  --va-shape-leaf-flip: 2.25rem 1rem 0.5rem 1rem;
+  /* Squircle: super-ellipse, friendly infrastructure */
+  --va-shape-squircle: 32% / 28%;
+  --va-shape-squircle-lg: 36% / 30%;
+  /* Arch: greenhouse/field shelter */
+  --va-shape-arch: 50% 50% 0.75rem 0.75rem;
+  --va-shape-arch-lg: 60% 60% 1rem 1rem;
+  /* Field: wide, low, agricultural terrace */
+  --va-shape-field: 2.25rem 0.75rem 2.25rem 0.75rem;
+  /* Seed: small organic pill */
+  --va-shape-seed: 1rem 0.4rem 1rem 0.4rem;
+  /* Expressive large — hero surfaces */
+  --va-shape-expressive: 1.75rem 0.5rem 2.25rem 1rem;
+  --va-shape-expressive-flip: 0.5rem 1.75rem 1rem 2.25rem;
 }
