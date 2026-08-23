@@ -10,9 +10,13 @@ import { useRouter } from "next/navigation"
 import { Grid } from "@/components/ui"
 import styles from "./search-discovery.module.css"
 
-function playGoopyDroplet() {
+// Shared AudioContext — created lazily on first user gesture, reused for all droplets
+let audioCtx: AudioContext | null = null
+
+function getAudioContext(): AudioContext | null {
   try {
-    if (typeof window === "undefined") return
+    if (typeof window === "undefined") return null
+    if (audioCtx) return audioCtx
     const AudioCtx =
       (
         window as unknown as {
@@ -21,62 +25,71 @@ function playGoopyDroplet() {
         }
       ).AudioContext ??
       (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
-    // Respect reduced motion: softer sound
-    const isReduced =
-      typeof window !== "undefined" &&
-      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
-    const volume = isReduced ? 0.12 : 0.32
+    if (!AudioCtx) return null
+    audioCtx = new AudioCtx()
+    return audioCtx
+  } catch {
+    return null
+  }
+}
 
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+  )
+}
+
+/** One giant water droplet — single deep plop with long decay. */
+function playGiantDroplet() {
+  try {
+    const ctx = getAudioContext()
+    if (!ctx) return
+    const volume = prefersReducedMotion() ? 0.16 : 0.5
     const now = ctx.currentTime
 
-    // Main plop — sine with exponential drop 880 -> 140 Hz, lowpass for goopy
-    const osc1 = ctx.createOscillator()
-    const gain1 = ctx.createGain()
-    const filt1 = ctx.createBiquadFilter()
-    filt1.type = "lowpass"
-    filt1.frequency.value = 1100
-    filt1.Q.value = 1
-    osc1.type = "sine"
-    osc1.frequency.setValueAtTime(880, now)
-    osc1.frequency.exponentialRampToValueAtTime(140, now + 0.32)
-    gain1.gain.setValueAtTime(volume, now)
-    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.38)
-    osc1.connect(filt1).connect(gain1).connect(ctx.destination)
-    osc1.start(now)
-    osc1.stop(now + 0.38)
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    const filt = ctx.createBiquadFilter()
+    filt.type = "lowpass"
+    filt.frequency.value = 750
+    filt.Q.value = 0.9
+    osc.type = "sine"
+    osc.frequency.setValueAtTime(420, now)
+    osc.frequency.exponentialRampToValueAtTime(58, now + 0.42)
+    gain.gain.setValueAtTime(volume, now)
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55)
+    osc.connect(filt).connect(gain).connect(ctx.destination)
+    osc.start(now)
+    osc.stop(now + 0.55)
+  } catch {
+    // ignore — audio not available
+  }
+}
 
-    // Secondary blop — delayed, slightly higher for goopy bounce
-    const t2 = now + 0.07
-    const osc2 = ctx.createOscillator()
-    const gain2 = ctx.createGain()
-    const filt2 = ctx.createBiquadFilter()
-    filt2.type = "lowpass"
-    filt2.frequency.value = 900
-    osc2.type = "sine"
-    osc2.frequency.setValueAtTime(520, t2)
-    osc2.frequency.exponentialRampToValueAtTime(110, t2 + 0.18)
-    gain2.gain.setValueAtTime(volume * 0.55, t2)
-    gain2.gain.exponentialRampToValueAtTime(0.001, t2 + 0.22)
-    osc2.connect(filt2).connect(gain2).connect(ctx.destination)
-    osc2.start(t2)
-    osc2.stop(t2 + 0.22)
+/** Tiny muffled droplet click — soft, quiet, heavily low-passed blip. */
+function playTinyDroplet() {
+  try {
+    const ctx = getAudioContext()
+    if (!ctx) return
+    if (prefersReducedMotion()) return
+    // Skip while a splash transition is running
+    const volume = 0.05
+    const now = ctx.currentTime
 
-    // Tiny bubble pop — short high plink for cartoony feel
-    const t3 = now + 0.14
-    const osc3 = ctx.createOscillator()
-    const gain3 = ctx.createGain()
-    osc3.type = "triangle"
-    osc3.frequency.setValueAtTime(1200, t3)
-    osc3.frequency.exponentialRampToValueAtTime(1800, t3 + 0.06)
-    gain3.gain.setValueAtTime(volume * 0.22, t3)
-    gain3.gain.exponentialRampToValueAtTime(0.001, t3 + 0.09)
-    osc3.connect(gain3).connect(ctx.destination)
-    osc3.start(t3)
-    osc3.stop(t3 + 0.09)
-
-    setTimeout(() => void ctx.close(), 700)
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    const filt = ctx.createBiquadFilter()
+    filt.type = "lowpass"
+    filt.frequency.value = 480
+    osc.type = "sine"
+    osc.frequency.setValueAtTime(300 + Math.random() * 90, now)
+    osc.frequency.exponentialRampToValueAtTime(120, now + 0.07)
+    gain.gain.setValueAtTime(volume, now)
+    gain.gain.exponentialRampToValueAtTime(0.0008, now + 0.09)
+    osc.connect(filt).connect(gain).connect(ctx.destination)
+    osc.start(now)
+    osc.stop(now + 0.09)
   } catch {
     // ignore — audio not available
   }
@@ -108,13 +121,18 @@ export function SearchDiscoveryClient() {
 
   const handleCardClick = (e: React.MouseEvent, address: string) => {
     if (splash) return
-    const x = e.clientX
-    const y = e.clientY
-    setSplash({ x, y })
-    playGoopyDroplet()
+    // Splash originates from the selected result — center of the clicked card
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+    setSplash({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
+    playGiantDroplet()
     window.setTimeout(() => {
       router.push("/farmers/" + address)
     }, 420)
+  }
+
+  const handleCardHover = () => {
+    if (splash) return
+    playTinyDroplet()
   }
 
   const normalized = submittedQuery.trim()
@@ -218,6 +236,7 @@ export function SearchDiscoveryClient() {
                 elevation={1}
                 className={styles.resultCard}
                 onClick={(e) => handleCardClick(e, farmer.address)}
+                onMouseEnter={handleCardHover}
               >
                 <div className={styles.header}>
                   <StatusPill
