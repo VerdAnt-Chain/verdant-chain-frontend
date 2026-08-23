@@ -1,0 +1,173 @@
+.wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 520px;
+  margin: 0 auto;
+  overflow: visible;
+  isolation: isolate;
+}
+
+.svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: block;
+}
+
+.glow,
+.glow2 {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(40px);
+}
+
+.glow {
+  width: 72%;
+  height: 72%;
+  top: 14%;
+  left: 14%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--va-primary-container) 55%, transparent) 0%,
+    transparent 70%
+  );
+  opacity: 0.9;
+}
+
+.glow2 {
+  width: 55%;
+  height: 55%;
+  top: 22%;
+  left: 28%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--va-accent-leaf) 22%, transparent) 0%,
+    transparent 68%
+  );
+  opacity: 0.6;
+}
+
+/* Orbital slow rotation */
+.orbitSlow {
+  transform-origin: 200px 200px;
+  animation: orbit 120s linear infinite;
+}
+
+.orbitMed {
+  transform-origin: 200px 200px;
+  animation: orbit 90s linear infinite reverse;
+}
+
+.orbitFast {
+  transform-origin: 200px 200px;
+  animation: orbit 180s linear infinite;
+}
+
+@keyframes orbit {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Branch draw-in */
+.branch {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: draw 2.2s var(--va-ease-spring-gentle) forwards;
+  animation-delay: 0.3s;
+}
+
+.branch:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Node pulse */
+.nodePulse {
+  animation: pulse 3.2s ease-in-out infinite;
+}
+
+.centerPulse {
+  animation: centerPulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes centerPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+/* Data point drift */
+.drift {
+  animation: drift 6s ease-in-out infinite;
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-4px);
+    opacity: 0.8;
+  }
+}
+
+.leafFloat {
+  animation: leafFloat 8s ease-in-out infinite;
+}
+
+@keyframes leafFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbitSlow,
+  .orbitMed,
+  .orbitFast,
+  .branch,
+  .nodePulse,
+  .centerPulse,
+  .drift,
+  .leafFloat {
+    animation: none !important;
+  }
+  .branch {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+  }
+}

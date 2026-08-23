@@ -31,5 +31,7 @@ export async function updateFarmerMetadata(
   address: string,
   metadata: FarmerProfileMetadata
 ): Promise<FarmerRecord> {
-  return api.put<FarmerRecord>(`/api/v1/farmers/${encodeURIComponent(address)}/metadata`, { metadata })
+  return api.put<FarmerRecord>(`/api/v1/farmers/${encodeURIComponent(address)}/metadata`, {
+    metadata,
+  })
 }

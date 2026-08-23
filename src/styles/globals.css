@@ -23,6 +23,54 @@ body {
   transition:
     background-color var(--va-motion-200) var(--va-ease-standard),
     color var(--va-motion-200) var(--va-ease-standard);
+  position: relative;
+}
+
+/* Subtle botanical motif — faint branching line behind content, like a root network */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 120% 60% at 20% -10%,
+      color-mix(in srgb, var(--va-primary-container) 14%, transparent) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 90% 50% at 90% 10%,
+      color-mix(in srgb, var(--va-accent-leaf) 10%, transparent) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 70% 40% at 50% 100%,
+      color-mix(in srgb, var(--va-accent-earth) 8%, transparent) 0%,
+      transparent 60%
+    );
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.9;
+}
+
+@media (prefers-color-scheme: dark) {
+  body::before {
+    background:
+      radial-gradient(
+        ellipse 120% 60% at 20% -10%,
+        color-mix(in srgb, var(--va-primary-container) 18%, transparent) 0%,
+        transparent 55%
+      ),
+      radial-gradient(
+        ellipse 90% 50% at 90% 10%,
+        color-mix(in srgb, var(--va-accent-leaf) 8%, transparent) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        ellipse 70% 40% at 50% 100%,
+        color-mix(in srgb, var(--va-accent-earth) 6%, transparent) 0%,
+        transparent 60%
+      );
+  }
 }
 
 a {
